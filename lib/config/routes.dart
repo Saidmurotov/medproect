@@ -6,6 +6,7 @@ import '../screens/symptoms/add_symptom_screen.dart';
 import '../screens/profile/monthly_report_screen.dart';
 import '../screens/medications/medications_screen.dart';
 import '../screens/medications/add_edit_medication_screen.dart';
+import '../screens/food/camera_screen.dart';
 import '../models/medication_model.dart';
 
 class AppRoutes {
@@ -16,17 +17,35 @@ class AppRoutes {
   static const String report = '/report';
   static const String medications = '/medications';
   static const String addMedication = '/add-medication';
+  static const String foodCamera = '/food-camera';
 
-  static Map<String, WidgetBuilder> get routes => {
-    login: (context) => const LoginScreen(),
-    register: (context) => const RegistrationScreen(),
-    home: (context) => const HomeScreen(),
-    addSymptom: (context) => const AddSymptomScreen(),
-    report: (context) => const MonthlyReportScreen(),
-    medications: (context) => const MedicationsScreen(),
-    addMedication: (context) {
-      final med = ModalRoute.of(context)?.settings.arguments as Medication?;
-      return AddEditMedicationScreen(medication: med);
-    },
-  };
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case login:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case register:
+        return MaterialPageRoute(builder: (_) => const RegistrationScreen());
+      case home:
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
+      case addSymptom:
+        return MaterialPageRoute(builder: (_) => const AddSymptomScreen());
+      case report:
+        return MaterialPageRoute(builder: (_) => const MonthlyReportScreen());
+      case medications:
+        return MaterialPageRoute(builder: (_) => const MedicationsScreen());
+      case addMedication:
+        final med = settings.arguments as Medication?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditMedicationScreen(medication: med),
+        );
+      case foodCamera:
+        return MaterialPageRoute(builder: (_) => const CameraScreen());
+      default:
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
+            body: Center(child: Text('No route defined for ${settings.name}')),
+          ),
+        );
+    }
+  }
 }

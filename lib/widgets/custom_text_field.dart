@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/constants/colors.dart';
+import '../core/constants/text_styles.dart';
 import '../l10n/app_localizations.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -40,14 +41,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
-          ),
-        ),
+        Text(widget.label, style: AppTextStyles.label),
         const SizedBox(height: 6),
         TextFormField(
           controller: widget.controller,

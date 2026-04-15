@@ -1,18 +1,12 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz_data;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/foundation.dart';
-import '../models/medication_model.dart';
-import 'dart:io';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
-/// MIUI (Xiaomi/Redmi) Optimization Checklist:
-/// 1. App Info -> Autostart: ENABLED
-/// 2. App Info -> Battery Saver: NO RESTRICTIONS
-/// 3. Recents Menu: Long press app -> Lock icon (Locked in memory)
-/// 4. App Info -> Permissions -> Allow background activity: ENABLED
-/// 5. Developer Options -> Turn off MIUI Optimization (Last resort)
+import 'package:medproect/core/navigation.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -22,35 +16,19 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static const String _channelId = 'medication_alarm_v4';
-  static const String _channelName = 'Dori Eslatmalari (Muhim)';
-  static const String _channelDesc =
-      'Dori ichish vaqti haqida qat\'iy vaqtda xabar beradi';
+  bool _isInitialized = false;
 
-  bool _initialized = false;
+  static const String _channelId = 'medication_reminders_high';
+  static const String _channelName = 'Dori eslatmalari';
+  static const String _channelDesc = 'Muhim dori eslatmalari';
 
   Future<void> init() async {
-    if (_initialized) return;
+    if (_isInitialized) return;
 
-    // 1. Timezone initialization with robust fallback
-    tz_data.initializeTimeZones();
-    try {
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
-      debugPrint("✅ NotificationService: Timezone Set: $timeZoneName");
-    } catch (e) {
-      debugPrint(
-        "⚠️ NotificationService: Timezone Error: $e. Using Asia/Tashkent fallback.",
-      );
-      try {
-        tz.setLocalLocation(tz.getLocation('Asia/Tashkent'));
-      } catch (_) {
-        tz.setLocalLocation(tz.getLocation('UTC'));
-        debugPrint("❌ NotificationService: Fell back to UTC.");
-      }
-    }
+    tz.initializeTimeZones();
+    final String timezoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timezoneName));
 
-    // 2. Platform settings
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -66,271 +44,279 @@ class NotificationService {
       iOS: iosSettings,
     );
 
-    // 3. Initialize plugin
     await _notificationsPlugin.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (details) {
-        debugPrint(
-          "🔔 NotificationService: Notification Clicked: ${details.payload}",
-        );
-      },
+      onDidReceiveNotificationResponse: _onNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse:
+          _onBackgroundNotificationTapped,
     );
 
-    // 4. Create MIUI-hardened notification channel
+    await _createNotificationChannel();
+    _isInitialized = true;
+    debugPrint('✅ NotificationService initialized. Timezone: $timezoneName');
+  }
+
+  Future<void> _createNotificationChannel() async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      _channelId,
+      _channelName,
+      description: _channelDesc,
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      showBadge: true,
+    );
+
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
+
+    debugPrint('✅ Notification channel created: $_channelId');
+  }
+
+  Future<bool> requestPermissionsIfNeeded() async {
     if (Platform.isAndroid) {
+      final notifStatus = await Permission.notification.request();
+      debugPrint('📋 Notification permission: $notifStatus');
+
+      if (notifStatus.isDenied || notifStatus.isPermanentlyDenied) {
+        debugPrint('❌ Notification permission denied!');
+        return false;
+      }
+
       final androidPlugin = _notificationsPlugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
 
       if (androidPlugin != null) {
-        const AndroidNotificationChannel channel = AndroidNotificationChannel(
-          _channelId,
-          _channelName,
-          description: _channelDesc,
-          importance: Importance.max,
-          playSound: true,
-          enableVibration: true,
-          showBadge: true,
-          enableLights: true,
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        );
-        await androidPlugin.createNotificationChannel(channel);
-        debugPrint(
-          "✅ NotificationService: Android Notification Channel Created: $_channelId",
-        );
+        final exactAlarmGranted = await androidPlugin
+            .requestExactAlarmsPermission();
+        debugPrint('📋 Exact alarm permission: $exactAlarmGranted');
       }
+
+      return true;
     }
 
-    _initialized = true;
-    await debugPermissionStates();
+    if (Platform.isIOS) {
+      final granted = await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+      return granted ?? false;
+    }
+
+    return false;
   }
 
-  /// Comprehensive Permission Requests (Android 12/13/14+)
-  Future<void> requestPermissionsIfNeeded() async {
-    // A. Notification Permission (Android 13+)
-    if (Platform.isAndroid) {
-      final status = await Permission.notification.status;
-      if (!status.isGranted) {
-        final result = await Permission.notification.request();
-        debugPrint(
-          "🔔 NotificationService: Notification permission request: $result",
-        );
-      }
-    }
+  Future<void> scheduleMedicationReminder({
+    required int id,
+    required String medicationName,
+    required String dosage,
+    required TimeOfDay time,
+  }) async {
+    await _ensureInitialized();
 
-    // B. Exact Alarm Permission (Android 12+)
-    if (Platform.isAndroid) {
-      final androidPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
+    final scheduledTime = _nextInstanceOfTime(time);
 
-      bool? canSchedule = await androidPlugin?.canScheduleExactNotifications();
-      debugPrint(
-        "⏰ NotificationService: Can schedule exact alarm: $canSchedule",
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      '💊 Dori vaqti!',
+      '$medicationName - $dosage',
+      scheduledTime,
+      _buildNotificationDetails(medicationName),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: 'medication_$id',
+    );
+
+    debugPrint('✅ Reminder scheduled for $medicationName at $time');
+  }
+
+  Future<void> scheduleMedicationReminderForDays({
+    required int baseId,
+    required String medicationName,
+    required String dosage,
+    required TimeOfDay time,
+    required List<int> daysOfWeek,
+  }) async {
+    await _ensureInitialized();
+
+    for (final day in daysOfWeek) {
+      final id = baseId * 10 + day;
+      final scheduledTime = _nextInstanceOfTimeOnDay(time, day);
+
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        '💊 Dori vaqti!',
+        '$medicationName - $dosage',
+        scheduledTime,
+        _buildNotificationDetails(medicationName),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        payload: 'medication_${baseId}_day_$day',
       );
-
-      if (canSchedule == false) {
-        await Permission.scheduleExactAlarm.request();
-      }
     }
+
+    debugPrint('✅ Reminders scheduled for days: $daysOfWeek');
+  }
+
+  Future<void> showImmediateTestNotification() async {
+    await _ensureInitialized();
+
+    await _notificationsPlugin.show(
+      9999,
+      '🔔 Test Notification',
+      'Notification ishlayapti! ✅',
+      _buildNotificationDetails('Test'),
+      payload: 'test',
+    );
+
+    debugPrint('✅ Immediate test notification sent!');
+  }
+
+  Future<void> showScheduledTestNotification() async {
+    await _ensureInitialized();
+
+    final scheduledTime = tz.TZDateTime.now(
+      tz.local,
+    ).add(const Duration(seconds: 10));
+
+    await _notificationsPlugin.zonedSchedule(
+      9998,
+      '⏰ Rejalashtirilgan Test',
+      '10 soniyadan keyin keldi! ✅',
+      scheduledTime,
+      _buildNotificationDetails('Test'),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: 'test_scheduled',
+    );
+
+    debugPrint(
+      '✅ Scheduled test notification for: ${scheduledTime.toString()}',
+    );
+  }
+
+  Future<void> cancelMedicationReminder(int id) async {
+    await _notificationsPlugin.cancel(id);
+    debugPrint('🗑️  Cancelled notification: $id');
+  }
+
+  Future<void> cancelAllReminders() async {
+    await _notificationsPlugin.cancelAll();
+    debugPrint('🗑️  All notifications cancelled');
+  }
+
+  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await _notificationsPlugin.pendingNotificationRequests();
   }
 
   Future<void> debugPermissionStates() async {
-    if (!Platform.isAndroid) return;
+    final notifStatus = await Permission.notification.status;
+    debugPrint('=== NOTIFICATION DEBUG ===');
+    debugPrint('📋 Notification permission: $notifStatus');
+    debugPrint('🕐 Current timezone: ${tz.local.name}');
+    debugPrint('🕐 Current local time: ${tz.TZDateTime.now(tz.local)}');
+
+    final pending = await getPendingNotifications();
+    debugPrint('📬 Pending notifications: ${pending.length}');
+    for (final p in pending) {
+      debugPrint('  - ID: ${p.id}, Title: ${p.title}, Body: ${p.body}');
+    }
 
     final androidPlugin = _notificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-
-    final bool? canSchedule = await androidPlugin
-        ?.canScheduleExactNotifications();
-    final bool isNotificationEnabled = await Permission.notification.isGranted;
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-
-    debugPrint("╔══════════════════════════════════╗");
-    debugPrint("║    NOTIFICATION DEBUG STATUS     ║");
-    debugPrint("╠══════════════════════════════════╣");
-    debugPrint("║ Current Local Time: $now");
-    debugPrint("║ Notifications Granted: $isNotificationEnabled");
-    debugPrint("║ Exact Alarm Granted: $canSchedule");
-    debugPrint("║ Channel ID: $_channelId");
-    debugPrint("╚══════════════════════════════════╝");
+    if (androidPlugin != null) {
+      final areEnabled = await androidPlugin.areNotificationsEnabled();
+      debugPrint('📱 Android notifications enabled: $areEnabled');
+    }
+    debugPrint('==========================');
   }
 
-  /// Main scheduling method
-  Future<void> scheduleMedicationNotification(Medication med) async {
-    await cancelMedicationNotification(med.id);
-
-    if (!med.reminderEnabled || med.scheduleType == ScheduleType.prn) {
-      debugPrint(
-        "⏭️ NotificationService: Skipping scheduling for: ${med.name}",
-      );
-      return;
-    }
-
-    for (int i = 0; i < med.times.length; i++) {
-      final timeStr = med.times[i];
-      final id = _generateNotificationId(med.id, i);
-
-      if (med.scheduleType == ScheduleType.daily) {
-        await _schedule(
-          id: id,
-          title: "💊 ${med.name}",
-          body: "${med.name} vaqti bo'ldi: ${med.dose ?? ''}",
-          timeStr: timeStr,
-          repeatDaily: true,
-        );
-      } else if (med.scheduleType == ScheduleType.custom) {
-        for (int day in med.daysOfWeek) {
-          final customId = _generateNotificationId(med.id, i * 10 + day);
-          await _schedule(
-            id: customId,
-            title: "💊 ${med.name}",
-            body: "${med.name} vaqti bo'ldi: ${med.dose ?? ''}",
-            timeStr: timeStr,
-            targetWeekday: day,
-          );
-        }
-      }
-    }
-  }
-
-  Future<void> _schedule({
-    required int id,
-    required String title,
-    required String body,
-    required String timeStr,
-    bool repeatDaily = false,
-    int? targetWeekday,
-  }) async {
-    final parts = timeStr.split(':');
-    if (parts.length != 2) {
-      debugPrint("❌ NotificationService: Invalid time format: $timeStr");
-      return;
-    }
-    final int hour = int.tryParse(parts[0]) ?? 0;
-    final int minute = int.tryParse(parts[1]) ?? 0;
-
-    tz.TZDateTime scheduledDate = _nextInstanceOfTime(hour, minute);
-
-    if (targetWeekday != null) {
-      int tries = 0;
-      while (scheduledDate.weekday != targetWeekday && tries < 8) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-        tries++;
-      }
-    }
-
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    final duration = scheduledDate.difference(now);
-    debugPrint(
-      "📅 NotificationService: Scheduling ID $id at $scheduledDate (In ${duration.inMinutes} mins, ${duration.inSeconds % 60} secs) (Repeat: $repeatDaily)",
-    );
-
-    const notificationDetails = NotificationDetails(
+  NotificationDetails _buildNotificationDetails(String tag) {
+    return NotificationDetails(
       android: AndroidNotificationDetails(
         _channelId,
         _channelName,
         channelDescription: _channelDesc,
-        importance: Importance.max,
-        priority: Priority.max,
-        category: AndroidNotificationCategory.alarm,
-        visibility: NotificationVisibility.public,
-        autoCancel: true,
-        fullScreenIntent: false,
+        importance: Importance.high, // high, not max
+        priority: Priority.high,
+        ticker: tag,
         playSound: true,
         enableVibration: true,
+        enableLights: true,
+        fullScreenIntent: false, // Turned off
+        category: AndroidNotificationCategory.reminder, // reminder, not alarm
+        visibility: NotificationVisibility.public,
+        styleInformation: const BigTextStyleInformation(''),
+        autoCancel: true, // Dismiss on tap
       ),
-      iOS: DarwinNotificationDetails(
+      iOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
       ),
     );
-
-    try {
-      await _notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: repeatDaily
-            ? DateTimeComponents.time
-            : (targetWeekday != null
-                  ? DateTimeComponents.dayOfWeekAndTime
-                  : null),
-      );
-      debugPrint("✅ NotificationService: Scheduled EXACT (ID: $id)");
-    } catch (e) {
-      debugPrint(
-        "⚠️ NotificationService: Exact failed ($e), falling back to INEXACT...",
-      );
-      try {
-        await _notificationsPlugin.zonedSchedule(
-          id,
-          title,
-          body,
-          scheduledDate,
-          notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: repeatDaily
-              ? DateTimeComponents.time
-              : (targetWeekday != null
-                    ? DateTimeComponents.dayOfWeekAndTime
-                    : null),
-        );
-        debugPrint("✅ NotificationService: Scheduled INEXACT (ID: $id)");
-      } catch (e2) {
-        debugPrint(
-          "❌ NotificationService: Both scheduling methods failed: $e2",
-        );
-      }
-    }
   }
 
-  Future<void> cancelMedicationNotification(String medId) async {
-    for (int i = 0; i < 100; i++) {
-      await _notificationsPlugin.cancel(_generateNotificationId(medId, i));
-    }
-  }
-
-  int _generateNotificationId(String medId, int index) {
-    // Use a more stable hash to avoid collisions
-    int hash = 0;
-    for (int i = 0; i < medId.length; i++) {
-      hash = 31 * hash + medId.codeUnitAt(i);
-    }
-    return (hash.abs() % 900000) + index;
-  }
-
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
+    final now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
       now.month,
       now.day,
-      hour,
-      minute,
+      time.hour,
+      time.minute,
     );
 
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
+
     return scheduledDate;
   }
 
-  Future<void> cancelAll() async {
-    await _notificationsPlugin.cancelAll();
-    debugPrint("🗑️ All notifications cancelled");
+  tz.TZDateTime _nextInstanceOfTimeOnDay(TimeOfDay time, int dayOfWeek) {
+    tz.TZDateTime scheduledDate = _nextInstanceOfTime(time);
+
+    while (scheduledDate.weekday != dayOfWeek) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    return scheduledDate;
   }
+
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) await init();
+  }
+
+  static void _onNotificationTapped(NotificationResponse response) {
+    debugPrint('🔔 Notification tapped: ${response.payload}');
+
+    // Navigate to medications page on tap
+    navigatorKey.currentState?.pushNamed('/medications');
+  }
+
+  /// RESTORED: Added for backward compatibility or direct access if needed
+  Future<void> showSettings() async {
+    await openAppSettings();
+  }
+}
+
+@pragma('vm:entry-point')
+void _onBackgroundNotificationTapped(NotificationResponse response) {
+  debugPrint('🔔 Background notification tapped: ${response.payload}');
 }

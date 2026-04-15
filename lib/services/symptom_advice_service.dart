@@ -1,4 +1,5 @@
-// No imports needed for now
+// Unified Symptom Advice Service
+// Combines both emergency checks and localized advice into one service
 
 class SymptomAdvice {
   final String message;
@@ -8,21 +9,39 @@ class SymptomAdvice {
 }
 
 class SymptomAdviceService {
-  static SymptomAdvice getAdvice(List<String> selectedSymptoms, int painLevel) {
-    List<String> adviceMessages = [];
+  /// Emergency symptoms list
+  static const List<String> _emergencySymptoms = [
+    'breathlessness',
+    'chest_pain',
+    'bleeding',
+  ];
 
-    // 1. Shoshilinch belgilar (Emergency check) using internal keys
-    if (selectedSymptoms.contains('breathlessness') ||
-        selectedSymptoms.contains('chest_pain') ||
-        selectedSymptoms.contains('bleeding')) {
-      return SymptomAdvice(
-        message:
-            "DIQQAT: Shoshilinch holat! Zudlik bilan 103 ga qo'ng'iroq qiling yoki eng yaqin shifoxonaga boring.",
-        isEmergency: true,
-      );
+  /// Emergency symptom combinations
+  static bool _isEmergencyCombination(List<String> symptoms) {
+    final hasFever = symptoms.contains('fever');
+    final hasStomachache = symptoms.contains('stomachache');
+    final hasDiarrhea = symptoms.contains('diarrhea');
+
+    return (hasFever && hasStomachache) || (hasFever && hasDiarrhea);
+  }
+
+  static SymptomAdvice getAdvice(List<String> selectedSymptoms, int painLevel) {
+    if (selectedSymptoms.isEmpty) {
+      return SymptomAdvice(message: '', isEmergency: false);
     }
 
-    // 2. Og'riq darajasi bo'yicha
+    // 1. Emergency symptoms check
+    for (final s in selectedSymptoms) {
+      if (_emergencySymptoms.contains(s)) {
+        return SymptomAdvice(
+          message:
+              "DIQQAT: Shoshilinch holat! Zudlik bilan 103 ga qo'ng'iroq qiling yoki eng yaqin shifoxonaga boring.",
+          isEmergency: true,
+        );
+      }
+    }
+
+    // 2. High pain level check
     if (painLevel >= 8) {
       return SymptomAdvice(
         message:
@@ -31,18 +50,23 @@ class SymptomAdviceService {
       );
     }
 
-    // 3. Umumiy tavsiyalar
-    if (selectedSymptoms.contains('fever')) {
-      adviceMessages.add("Ko'proq suyuqlik iching va dam oling.");
-    }
-    if (selectedSymptoms.contains('headache')) {
-      adviceMessages.add(
-        "Tinch va qorong'i xonada dam olishga harakat qiling.",
+    // 3. Emergency combinations check
+    if (_isEmergencyCombination(selectedSymptoms)) {
+      return SymptomAdvice(
+        message:
+            "⚠️ Bir nechta jiddiy simptomlar aniqlandi. Shifokorga murojaat qilish tavsiya etiladi.",
+        isEmergency: true,
       );
     }
-    if (selectedSymptoms.contains('stomachache') ||
-        selectedSymptoms.contains('diarrhea')) {
-      adviceMessages.add("Yengil ovqatlaning va suv balansini saqlang.");
+
+    // 4. General advice based on symptoms
+    List<String> adviceMessages = [];
+
+    for (final symptom in selectedSymptoms) {
+      final advice = _getAdviceForSymptom(symptom);
+      if (advice.isNotEmpty && !adviceMessages.contains(advice)) {
+        adviceMessages.add(advice);
+      }
     }
 
     if (adviceMessages.isEmpty) {
@@ -54,5 +78,28 @@ class SymptomAdviceService {
     }
 
     return SymptomAdvice(message: adviceMessages.join(" "), isEmergency: false);
+  }
+
+  static String _getAdviceForSymptom(String symptom) {
+    switch (symptom) {
+      case 'headache':
+        return "Tinch va qorong'i xonada dam olishga harakat qiling. Ko'proq suv iching.";
+      case 'stomachache':
+        return "Yengil ovqatlaning va iliq choy iching.";
+      case 'dizziness':
+        return "Faollikni kamaytiring va ko'proq dam oling.";
+      case 'nausea':
+        return "Og'ir ovqatlardan saqlaning va kam-kamdan ovqatlaning.";
+      case 'fever':
+        return "Ko'proq suyuqlik iching va dam oling. Tana haroratini kuzating.";
+      case 'constipation':
+        return "Kletchatka va suv iste'molini oshiring.";
+      case 'diarrhea':
+        return "Yengil ovqatlaning va suv balansini saqlang.";
+      case 'belching':
+        return "Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.";
+      default:
+        return '';
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/constants/colors.dart';
+import '../core/constants/text_styles.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -69,7 +70,9 @@ class CustomButton extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             text,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: AppTextStyles.button.copyWith(
+              color: isOutlined ? AppColors.primary : Colors.white,
+            ),
           ),
         ],
       );
@@ -77,7 +80,9 @@ class CustomButton extends StatelessWidget {
 
     return Text(
       text,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      style: AppTextStyles.button.copyWith(
+        color: isOutlined ? AppColors.primary : Colors.white,
+      ),
     );
   }
 }

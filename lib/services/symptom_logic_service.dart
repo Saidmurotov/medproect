@@ -8,7 +8,16 @@ class SymptomAdviceResult {
   SymptomAdviceResult({required this.advice, required this.isEmergency});
 }
 
+/// Localized version of symptom advice service
+/// Used by SymptomAdviceCard widget for displaying localized advice
 class SymptomLogicService {
+  /// Emergency symptoms list
+  static const List<String> _emergencySymptoms = [
+    'breathlessness',
+    'chest_pain',
+    'bleeding',
+  ];
+
   static SymptomAdviceResult getAdvice({
     required BuildContext context,
     required List<String> selectedSymptoms,
@@ -20,24 +29,37 @@ class SymptomLogicService {
       return SymptomAdviceResult(advice: '', isEmergency: false);
     }
 
-    // 1. Emergency Warning Logic
-    final bool hasFever = selectedSymptoms.contains('fever');
-    final bool hasStomachache = selectedSymptoms.contains('stomachache');
-    final bool hasDiarrhea = selectedSymptoms.contains('diarrhea');
+    // 1. Emergency symptom check
+    for (final s in selectedSymptoms) {
+      if (_emergencySymptoms.contains(s)) {
+        return SymptomAdviceResult(
+          advice: l10n.emergencyWarning,
+          isEmergency: true,
+        );
+      }
+    }
 
-    bool isEmergency =
-        painLevel >= 8 ||
-        (hasFever && hasStomachache) ||
-        (hasFever && hasDiarrhea);
-
-    if (isEmergency) {
+    // 2. High pain check
+    if (painLevel >= 8) {
       return SymptomAdviceResult(
         advice: l10n.emergencyWarning,
         isEmergency: true,
       );
     }
 
-    // 2. Map Symptoms to Advice Keys
+    // 3. Emergency combinations
+    final bool hasFever = selectedSymptoms.contains('fever');
+    final bool hasStomachache = selectedSymptoms.contains('stomachache');
+    final bool hasDiarrhea = selectedSymptoms.contains('diarrhea');
+
+    if ((hasFever && hasStomachache) || (hasFever && hasDiarrhea)) {
+      return SymptomAdviceResult(
+        advice: l10n.emergencyWarning,
+        isEmergency: true,
+      );
+    }
+
+    // 4. Localized advice for first symptom
     final String firstSymptom = selectedSymptoms.first;
     String advice = '';
 
@@ -67,7 +89,7 @@ class SymptomLogicService {
         advice = l10n.adviceBelching;
         break;
       default:
-        advice = l10n.bmiRecommendation; // Fallback
+        advice = l10n.bmiRecommendation;
     }
 
     return SymptomAdviceResult(advice: advice, isEmergency: false);

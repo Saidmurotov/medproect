@@ -50,29 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
 
               // Logo / Icon
-              Container(
-                width: 88,
-                height: 88,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.health_and_safety_rounded,
-                  size: 44,
-                  color: Colors.white,
-                ),
+              Image.asset(
+                'assets/images/app_icon.png',
+                width: 110,
+                height: 110,
               ),
 
               const SizedBox(height: 28),
@@ -86,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text('Sog\'ligingizni kuzating', style: AppTextStyles.bodyMedium),
+              Text(l10n.loginSubtitle, style: AppTextStyles.bodyMedium),
 
               const SizedBox(height: 48),
 
@@ -170,6 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     final l10n = AppLocalizations.of(context)!;
+    final navigator = Navigator.of(context);
+
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showError(l10n.errorEmptyFields);
       return;
@@ -190,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ).loadUser(user.uid);
         if (mounted) {
           setState(() => _isLoading = false);
-          Navigator.pushReplacementNamed(context, '/home');
+          navigator.pushReplacementNamed('/home');
         }
       }
     } catch (e) {
@@ -202,11 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (errorString.contains('network-request-failed')) {
           message = l10n.errorNetwork;
         } else if (errorString.contains('user-not-found')) {
-          message = "Foydalanuvchi topilmadi";
+          message = l10n.errorUserNotFound;
         } else if (errorString.contains('wrong-password')) {
-          message = "Parol noto'g'ri";
+          message = l10n.errorWrongPassword;
         } else if (errorString.contains('too-many-requests')) {
-          message = "Urinishlar ko'payib ketdi. Birozdan so'ng harakat qiling";
+          message = l10n.errorTooManyRequests;
         }
 
         _showError(message);

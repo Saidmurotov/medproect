@@ -22,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Stream<List<SymptomModel>>? _symptomsStream;
+  Stream<int>? _caloriesStream;
   bool _isOffline = false;
 
   @override
@@ -33,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (user != null) {
         setState(() {
           _symptomsStream = FirestoreService().getSymptoms(user.id);
+          _caloriesStream = FirestoreService().getTodayTotalCalories(user.id);
         });
       }
     });
@@ -67,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           setState(() {
             _symptomsStream = FirestoreService().getSymptoms(user.id);
+            _caloriesStream = FirestoreService().getTodayTotalCalories(user.id);
           });
         }
       });
@@ -189,6 +192,94 @@ class _HomeScreenState extends State<HomeScreen> {
               if (user != null) BmiCard(bmi: user.bmi),
 
               const SizedBox(height: 16),
+
+              // Bugungi Kaloriya Kartasi
+              if (_caloriesStream != null)
+                StreamBuilder<int>(
+                  stream: _caloriesStream,
+                  builder: (context, snapshot) {
+                    final current = snapshot.data ?? 0;
+                    final target = 2000; // Standart kunlik norma
+                    final progress = (current / target).clamp(0.0, 1.0);
+
+                    return Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardWhite,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: AppColors.cardShadow,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Bugungi Kaloriya',
+                                    style: AppTextStyles.labelBold,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: '$current',
+                                          style: AppTextStyles.statMedium.copyWith(color: AppColors.primary),
+                                        ),
+                                        TextSpan(
+                                          text: ' / $target kkal',
+                                          style: AppTextStyles.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primarySurface,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.bolt_rounded, color: AppColors.primary, size: 24),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 12,
+                              backgroundColor: AppColors.border.withValues(alpha: 0.5),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                progress >= 1.0 ? AppColors.danger : AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                progress >= 1.0 ? 'Norma bajarildi! 🎉' : 'Yana ${target - current} kkal kerak',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: progress >= 1.0 ? AppColors.success : AppColors.textTertiary,
+                                ),
+                              ),
+                              Text('${(progress * 100).toInt()}%', style: AppTextStyles.label),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
 
               if (_symptomsStream != null)
                 StreamBuilder<List<SymptomModel>>(

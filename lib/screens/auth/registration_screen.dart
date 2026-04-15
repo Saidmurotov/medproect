@@ -223,6 +223,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void _register() async {
     final l10n = AppLocalizations.of(context)!;
+    final navigator = Navigator.of(context);
+    final scaffoldMsg = ScaffoldMessenger.of(context);
+
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
@@ -244,7 +247,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             listen: false,
           ).loadUser(user.uid);
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/home');
+            navigator.pushReplacementNamed('/home');
           }
         }
       } catch (e) {
@@ -262,7 +265,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             message = l10n.errorInvalidEmail;
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
+          scaffoldMsg.showSnackBar(
             SnackBar(
               content: Row(
                 children: [

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In uz, this message translates to:
-  /// **'MedProect'**
+  /// **'DGI Health'**
   String get appTitle;
 
   /// No description provided for @registration.
@@ -461,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @trackHealth.
   ///
   /// In uz, this message translates to:
-  /// **'Sog\'ligingizni kuzating'**
+  /// **'Sog\'lom hayot sari bir qadam'**
   String get trackHealth;
 
   /// No description provided for @quickActions.
@@ -811,6 +811,132 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Bekor qilish'**
   String get cancel;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sog\'lom hayot sari bir qadam'**
+  String get loginSubtitle;
+
+  /// No description provided for @errorUserNotFound.
+  ///
+  /// In uz, this message translates to:
+  /// **'Foydalanuvchi topilmadi'**
+  String get errorUserNotFound;
+
+  /// No description provided for @errorWrongPassword.
+  ///
+  /// In uz, this message translates to:
+  /// **'Parol noto\'g\'ri'**
+  String get errorWrongPassword;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In uz, this message translates to:
+  /// **'Urinishlar ko\'payib ketdi. Birozdan so\'ng harakat qiling'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @breathlessnessSymptom.
+  ///
+  /// In uz, this message translates to:
+  /// **'Nafas qisishi'**
+  String get breathlessnessSymptom;
+
+  /// No description provided for @chestPainSymptom.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ko\'krak og\'rig\'i'**
+  String get chestPainSymptom;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In uz, this message translates to:
+  /// **'Offline rejim yoqilgan'**
+  String get offlineBanner;
+
+  /// No description provided for @emergencyAdvice.
+  ///
+  /// In uz, this message translates to:
+  /// **'SHOSHILINCH YORDAM'**
+  String get emergencyAdvice;
+
+  /// No description provided for @generalAdvice.
+  ///
+  /// In uz, this message translates to:
+  /// **'MASLAHAT'**
+  String get generalAdvice;
+
+  /// No description provided for @emergencyMsg.
+  ///
+  /// In uz, this message translates to:
+  /// **'DIQQAT: Shoshilinch holat! Zudlik bilan 103 ga qo\'ng\'iroq qiling yoki eng yaqin shifoxonaga boring.'**
+  String get emergencyMsg;
+
+  /// No description provided for @highPainMsg.
+  ///
+  /// In uz, this message translates to:
+  /// **'Og\'riq darajasi juda yuqori ({level}/10). Iltimos, shifokor bilan bog\'laning.'**
+  String highPainMsg(Object level);
+
+  /// No description provided for @seriousSymptomsMsg.
+  ///
+  /// In uz, this message translates to:
+  /// **'⚠️ Bir nechta jiddiy simptomlar aniqlandi. Shifokorga murojaat qilish tavsiya etiladi.'**
+  String get seriousSymptomsMsg;
+
+  /// No description provided for @monitorHealthMsg.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ahvolingizni kuzatishda davom eting. Agar belgilar kuchaysa, shifokorga murojaat qiling.'**
+  String get monitorHealthMsg;
+
+  /// No description provided for @generalAdviceHeadache.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tinch va qorong\'i xonada dam olishga harakat qiling. Ko\'proq suv iching.'**
+  String get generalAdviceHeadache;
+
+  /// No description provided for @generalAdviceStomachache.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yengil ovqatlaning va iliq choy iching.'**
+  String get generalAdviceStomachache;
+
+  /// No description provided for @generalAdviceDizziness.
+  ///
+  /// In uz, this message translates to:
+  /// **'Faollikni kamaytiring va ko\'proq dam oling.'**
+  String get generalAdviceDizziness;
+
+  /// No description provided for @generalAdviceNausea.
+  ///
+  /// In uz, this message translates to:
+  /// **'Og\'ir ovqatlardan saqlaning va kam-kamdan ovqatlaning.'**
+  String get generalAdviceNausea;
+
+  /// No description provided for @generalAdviceFever.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ko\'proq suyuqlik iching va dam oling. Tana haroratini kuzating.'**
+  String get generalAdviceFever;
+
+  /// No description provided for @generalAdviceConstipation.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kletchatka va suv iste\'molini oshiring.'**
+  String get generalAdviceConstipation;
+
+  /// No description provided for @generalAdviceDiarrhea.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yengil ovqatlaning va suv balansini saqlang.'**
+  String get generalAdviceDiarrhea;
+
+  /// No description provided for @generalAdviceBelching.
+  ///
+  /// In uz, this message translates to:
+  /// **'Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.'**
+  String get generalAdviceBelching;
 }
 
 class _AppLocalizationsDelegate

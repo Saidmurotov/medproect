@@ -69,4 +69,25 @@ class FirestoreService {
           return <SymptomModel>[];
         });
   }
+
+  /// Bugungi jami kaloriyani hisoblash (Real-time)
+  Stream<int> getTodayTotalCalories(String userId) {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return _db
+        .collection('foodLogs')
+        .where('userId', isEqualTo: userId)
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
+        .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(todayEnd))
+        .snapshots()
+        .map((snapshot) {
+      int total = 0;
+      for (var doc in snapshot.docs) {
+        total += (doc.data()['calories'] as num?)?.toInt() ?? 0;
+      }
+      return total;
+    });
+  }
 }

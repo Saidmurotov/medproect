@@ -1,6 +1,8 @@
 class BmiCalculator {
-  static double calculate(double weight, double height) {
-    if (height <= 0) return 0;
-    return weight / (height * height);
+  /// Calculates BMI given weight in kg and height in cm.
+  static double calculate({required double weight, required double heightCm}) {
+    if (heightCm <= 0) return 0;
+    double heightInMeters = heightCm / 100;
+    return weight / (heightInMeters * heightInMeters);
   }
 }

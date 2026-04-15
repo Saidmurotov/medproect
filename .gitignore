@@ -47,3 +47,10 @@ app.*.map.json
 # Backups
 android_backup_20260213_112132/
 
+# API Secrets — hech qachon GitHub ga yuklamang!
+lib/core/secrets.dart
+.env
+*.env
+
+# VS Code launch config (API key bo'lgani uchun)
+.vscode/launch.json

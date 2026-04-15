@@ -6,17 +6,19 @@ import 'config/routes.dart';
 import 'config/theme.dart';
 import 'providers/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'core/navigation.dart';
 
-class MedProectApp extends StatelessWidget {
+class DGIHealthApp extends StatelessWidget {
   final String initialRoute;
-  const MedProectApp({super.key, required this.initialRoute});
+  const DGIHealthApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
 
     return MaterialApp(
-      title: 'MedProect',
+      title: 'DGI Health',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -29,7 +31,7 @@ class MedProectApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('uz'), Locale('ru')],
       initialRoute: initialRoute,
-      routes: AppRoutes.routes,
+      onGenerateRoute: AppRoutes.generateRoute,
       builder: (context, child) {
         return ConnectivityBannerWrapper(child: child!);
       },

@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'МедПроект';
+  String get appTitle => 'DGI Health';
 
   @override
   String get registration => 'Регистрация';
@@ -193,7 +193,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get yourBmiLabel => 'Ваш ИМТ';
 
   @override
-  String get trackHealth => 'Следите за своим здоровьем';
+  String get trackHealth => 'Шаг к здоровой жизни';
 
   @override
   String get quickActions => 'Быстрые действия';
@@ -371,4 +371,79 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancel => 'Отмена';
+
+  @override
+  String get loginSubtitle => 'Шаг к здоровой жизни';
+
+  @override
+  String get errorUserNotFound => 'Пользователь не найден';
+
+  @override
+  String get errorWrongPassword => 'Неверный пароль';
+
+  @override
+  String get errorTooManyRequests => 'Слишком много попыток. Попробуйте позже';
+
+  @override
+  String get breathlessnessSymptom => 'Одышка';
+
+  @override
+  String get chestPainSymptom => 'Боль в груди';
+
+  @override
+  String get offlineBanner => 'Автономный режим';
+
+  @override
+  String get emergencyAdvice => 'СРОЧНАЯ ПОМОЩЬ';
+
+  @override
+  String get generalAdvice => 'СОВЕТ';
+
+  @override
+  String get emergencyMsg =>
+      'ВНИМАНИЕ: Срочное состояние! Немедленно позвоните 103 или обратитесь в ближайшую больницу.';
+
+  @override
+  String highPainMsg(Object level) {
+    return 'Уровень боли очень высокий ($level/10). Пожалуйста, свяжитесь с врачом.';
+  }
+
+  @override
+  String get seriousSymptomsMsg =>
+      '⚠️ Обнаружено несколько серьезных симптомов. Рекомендуется обратиться к врачу.';
+
+  @override
+  String get monitorHealthMsg =>
+      'Продолжайте следить за своим состоянием. Если симптомы усилятся, обратитесь к врачу.';
+
+  @override
+  String get generalAdviceHeadache =>
+      'Постарайтесь отдохнуть в тихой и темной комнате. Пейте больше воды.';
+
+  @override
+  String get generalAdviceStomachache =>
+      'Ешьте легкую пищу и пейте теплый чай.';
+
+  @override
+  String get generalAdviceDizziness => 'Снизьте активность и больше отдыхайте.';
+
+  @override
+  String get generalAdviceNausea =>
+      'Избегайте тяжелой пищи и ешьте небольшими порциями.';
+
+  @override
+  String get generalAdviceFever =>
+      'Пейте больше жидкости и отдыхайте. Следите за температурой тела.';
+
+  @override
+  String get generalAdviceConstipation =>
+      'Увеличьте потребление клетчатки и воды.';
+
+  @override
+  String get generalAdviceDiarrhea =>
+      'Ешьте легкую пищу и поддерживайте водный баланс.';
+
+  @override
+  String get generalAdviceBelching =>
+      'Избегайте газированных напитков и ешьте медленнее.';
 }

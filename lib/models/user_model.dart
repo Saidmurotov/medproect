@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/utils/bmi_calculator.dart';
 
 class UserModel {
   final String id;
@@ -48,12 +49,8 @@ class UserModel {
     };
   }
 
-  // BMI (Tana vazni indeksi) hisoblash
-  double get bmi {
-    if (height <= 0) return 0;
-    double heightInMeters = height / 100;
-    return weight / (heightInMeters * heightInMeters);
-  }
+  // BMI (Tana vazni indeksi) hisoblash (using centralized calculator)
+  double get bmi => BmiCalculator.calculate(weight: weight, heightCm: height);
 
   static DateTime _parseDateTime(dynamic raw) {
     if (raw == null) return DateTime.now();

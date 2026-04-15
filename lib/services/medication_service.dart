@@ -120,34 +120,36 @@ class MedicationService {
         .doc(dateStr);
 
     try {
-      final doc = await docRef.get();
-      MedicationLog log;
+      await _firestore.runTransaction((transaction) async {
+        final doc = await transaction.get(docRef);
+        MedicationLog log;
 
-      if (doc.exists) {
-        log = MedicationLog.fromMap(doc.data()!);
-        final currentTimes = log.taken[medId] ?? [];
-        if (taken) {
-          if (!currentTimes.contains(time)) {
-            currentTimes.add(time);
+        if (doc.exists) {
+          log = MedicationLog.fromMap(doc.data()!);
+          final currentTimes = log.taken[medId] ?? [];
+          if (taken) {
+            if (!currentTimes.contains(time)) {
+              currentTimes.add(time);
+            }
+          } else {
+            currentTimes.remove(time);
           }
+          log.taken[medId] = currentTimes;
         } else {
-          currentTimes.remove(time);
+          log = MedicationLog(
+            taken: taken
+                ? {
+                    medId: [time],
+                  }
+                : {},
+            updatedAt: DateTime.now(),
+          );
         }
-        log.taken[medId] = currentTimes;
-      } else {
-        log = MedicationLog(
-          taken: taken
-              ? {
-                  medId: [time],
-                }
-              : {},
-          updatedAt: DateTime.now(),
-        );
-      }
 
-      await docRef.set({
-        'taken': log.taken,
-        'updatedAt': FieldValue.serverTimestamp(),
+        transaction.set(docRef, {
+          'taken': log.taken,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
       });
     } catch (e) {
       debugPrint("⚠️ logMedication failed: $e");

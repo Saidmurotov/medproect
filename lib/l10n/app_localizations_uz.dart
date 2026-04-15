@@ -9,7 +9,7 @@ class AppLocalizationsUz extends AppLocalizations {
   AppLocalizationsUz([String locale = 'uz']) : super(locale);
 
   @override
-  String get appTitle => 'MedProect';
+  String get appTitle => 'DGI Health';
 
   @override
   String get registration => 'Ro\'yxatdan o\'tish';
@@ -193,7 +193,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get yourBmiLabel => 'Sizning BMI';
 
   @override
-  String get trackHealth => 'Sog\'ligingizni kuzating';
+  String get trackHealth => 'Sog\'lom hayot sari bir qadam';
 
   @override
   String get quickActions => 'Tezkor amallar';
@@ -376,4 +376,81 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get cancel => 'Bekor qilish';
+
+  @override
+  String get loginSubtitle => 'Sog\'lom hayot sari bir qadam';
+
+  @override
+  String get errorUserNotFound => 'Foydalanuvchi topilmadi';
+
+  @override
+  String get errorWrongPassword => 'Parol noto\'g\'ri';
+
+  @override
+  String get errorTooManyRequests =>
+      'Urinishlar ko\'payib ketdi. Birozdan so\'ng harakat qiling';
+
+  @override
+  String get breathlessnessSymptom => 'Nafas qisishi';
+
+  @override
+  String get chestPainSymptom => 'Ko\'krak og\'rig\'i';
+
+  @override
+  String get offlineBanner => 'Offline rejim yoqilgan';
+
+  @override
+  String get emergencyAdvice => 'SHOSHILINCH YORDAM';
+
+  @override
+  String get generalAdvice => 'MASLAHAT';
+
+  @override
+  String get emergencyMsg =>
+      'DIQQAT: Shoshilinch holat! Zudlik bilan 103 ga qo\'ng\'iroq qiling yoki eng yaqin shifoxonaga boring.';
+
+  @override
+  String highPainMsg(Object level) {
+    return 'Og\'riq darajasi juda yuqori ($level/10). Iltimos, shifokor bilan bog\'laning.';
+  }
+
+  @override
+  String get seriousSymptomsMsg =>
+      '⚠️ Bir nechta jiddiy simptomlar aniqlandi. Shifokorga murojaat qilish tavsiya etiladi.';
+
+  @override
+  String get monitorHealthMsg =>
+      'Ahvolingizni kuzatishda davom eting. Agar belgilar kuchaysa, shifokorga murojaat qiling.';
+
+  @override
+  String get generalAdviceHeadache =>
+      'Tinch va qorong\'i xonada dam olishga harakat qiling. Ko\'proq suv iching.';
+
+  @override
+  String get generalAdviceStomachache =>
+      'Yengil ovqatlaning va iliq choy iching.';
+
+  @override
+  String get generalAdviceDizziness =>
+      'Faollikni kamaytiring va ko\'proq dam oling.';
+
+  @override
+  String get generalAdviceNausea =>
+      'Og\'ir ovqatlardan saqlaning va kam-kamdan ovqatlaning.';
+
+  @override
+  String get generalAdviceFever =>
+      'Ko\'proq suyuqlik iching va dam oling. Tana haroratini kuzating.';
+
+  @override
+  String get generalAdviceConstipation =>
+      'Kletchatka va suv iste\'molini oshiring.';
+
+  @override
+  String get generalAdviceDiarrhea =>
+      'Yengil ovqatlaning va suv balansini saqlang.';
+
+  @override
+  String get generalAdviceBelching =>
+      'Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.';
 }

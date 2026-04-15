@@ -244,6 +244,9 @@ class _AddEditMedicationScreenState extends State<AddEditMedicationScreen> {
 
   Future<void> _save(MedicationProvider provider) async {
     final l10n = AppLocalizations.of(context)!;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     if (_nameController.text.isEmpty) return;
 
     final med = Medication(
@@ -264,12 +267,10 @@ class _AddEditMedicationScreenState extends State<AddEditMedicationScreen> {
         await provider.updateMedication(med);
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.saveSuccess)));
-        Navigator.pop(context);
-      }
+      if (!mounted) return;
+
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text(l10n.saveSuccess)));
+      navigator.pop();
     } catch (e) {
       // If we are here, Firestore write failed, but Notification was scheduled locally.
       debugPrint("Save error caught: $e");
@@ -285,7 +286,7 @@ class _AddEditMedicationScreenState extends State<AddEditMedicationScreen> {
               "Internet mavjud emas. Eslatma telefonda saqlandi va bildirishnoma chiqadi. Tarmoq tiklanganda ma'lumotlar bulutga yuboriladi.";
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(errorMsg),
             duration: const Duration(seconds: 6),
@@ -294,7 +295,7 @@ class _AddEditMedicationScreenState extends State<AddEditMedicationScreen> {
               label: "Tushunarli",
               textColor: Colors.white,
               onPressed: () {
-                if (mounted) Navigator.pop(context);
+                if (mounted) navigator.pop();
               },
             ),
           ),
@@ -302,7 +303,7 @@ class _AddEditMedicationScreenState extends State<AddEditMedicationScreen> {
 
         // Final pop to exit screen since it's saved locally/cached by Firestore offline
         Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.pop(context);
+          if (mounted) navigator.pop();
         });
       }
     }

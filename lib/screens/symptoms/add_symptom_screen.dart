@@ -9,7 +9,7 @@ import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/symptom_advice_service.dart';
+import '../../services/symptom_logic_service.dart';
 
 class AddSymptomScreen extends StatefulWidget {
   const AddSymptomScreen({super.key});
@@ -288,18 +288,20 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
       case 'belching':
         return l10n.belching;
       case 'breathlessness':
-        return "Nafas qisishi";
+        return l10n.breathlessnessSymptom;
       case 'chest_pain':
-        return "Ko'krak og'rig'i";
+        return l10n.chestPainSymptom;
       default:
         return '';
     }
   }
 
   Widget _buildAdviceCard(BuildContext context) {
-    final advice = SymptomAdviceService.getAdvice(
-      _selectedSymptoms.toList(),
-      _painLevel.toInt(),
+    final l10n = AppLocalizations.of(context)!;
+    final advice = SymptomLogicService.getAdvice(
+      context: context,
+      selectedSymptoms: _selectedSymptoms.toList(),
+      painLevel: _painLevel.toInt(),
     );
 
     return Container(
@@ -332,7 +334,7 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                advice.isEmergency ? "SHOSHILINCH YORDAM" : "MASLAHAT",
+                advice.isEmergency ? l10n.emergencyAdvice : l10n.generalAdvice,
                 style: AppTextStyles.labelBold.copyWith(
                   color: advice.isEmergency
                       ? AppColors.danger
@@ -343,7 +345,7 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            advice.message,
+            advice.advice,
             style: AppTextStyles.bodyMedium.copyWith(
               color: advice.isEmergency
                   ? AppColors.danger.withValues(alpha: 0.9)

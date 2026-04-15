@@ -28,33 +28,50 @@ class AppBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                label: l10n.home,
-                isActive: currentIndex == 0,
-                onTap: () => _navigate(context, 0),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home_rounded,
+                  label: l10n.home,
+                  isActive: currentIndex == 0,
+                  onTap: () => _navigate(context, 0),
+                ),
               ),
-              _NavItem(
-                icon: Icons.favorite_outline_rounded,
-                activeIcon: Icons.favorite_rounded,
-                label: l10n.symptoms,
-                isActive: currentIndex == 1,
-                onTap: () => _navigate(context, 1),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.favorite_outline_rounded,
+                  activeIcon: Icons.favorite_rounded,
+                  label: l10n.symptoms,
+                  isActive: currentIndex == 1,
+                  onTap: () => _navigate(context, 1),
+                ),
               ),
-              _NavItem(
-                icon: Icons.person_outline_rounded,
-                activeIcon: Icons.person_rounded,
-                label: l10n.profile,
-                isActive: currentIndex == 2,
-                onTap: () => _navigate(context, 2),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.person_outline_rounded,
+                  activeIcon: Icons.person_rounded,
+                  label: l10n.profile,
+                  isActive: currentIndex == 2,
+                  onTap: () => _navigate(context, 2),
+                ),
               ),
-              _NavItem(
-                icon: Icons.medication_outlined,
-                activeIcon: Icons.medication,
-                label: l10n.medications,
-                isActive: currentIndex == 3,
-                onTap: () => _navigate(context, 3),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.medication_outlined,
+                  activeIcon: Icons.medication,
+                  label: l10n.medications,
+                  isActive: currentIndex == 3,
+                  onTap: () => _navigate(context, 3),
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.restaurant_menu_outlined,
+                  activeIcon: Icons.restaurant_menu_rounded,
+                  label: 'Kaloriya',
+                  isActive: currentIndex == 4,
+                  onTap: () => _navigate(context, 4),
+                ),
               ),
             ],
           ),
@@ -91,6 +108,9 @@ class AppBottomNavBar extends StatelessWidget {
           Navigator.pushReplacementNamed(context, '/medications');
         }
         break;
+      case 4:
+        Navigator.pushNamed(context, '/food-camera');
+        break;
     }
   }
 }
@@ -117,7 +137,7 @@ class _NavItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
               ? AppColors.primary.withValues(alpha: 0.08)
@@ -135,8 +155,11 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 color: isActive ? AppColors.primary : AppColors.textTertiary,
               ),
