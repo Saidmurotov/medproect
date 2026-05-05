@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Gemini qaytargan ovqat tahlili natijasini saqlash uchun model.
+/// Ovqat tahlili natijasini saqlash uchun model.
 class FoodResultModel {
   final bool isFood;
   final String? foodName;
@@ -22,7 +22,7 @@ class FoodResultModel {
     required this.message,
   });
 
-  /// Gemini JSON javobidan model yaratish.
+  /// Service qaytargan JSON javobidan model yaratish.
   factory FoodResultModel.fromJson(Map<String, dynamic> json) {
     return FoodResultModel(
       isFood: json['is_food'] as bool? ?? false,

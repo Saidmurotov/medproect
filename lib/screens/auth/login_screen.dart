@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
-import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/form_hints.dart';
 import '../../widgets/language_toggle.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/medication_provider.dart';
 import '../../providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -152,6 +153,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     final l10n = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final medicationProvider = Provider.of<MedicationProvider>(
+      context,
+      listen: false,
+    );
 
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showError(l10n.errorEmptyFields);
@@ -160,17 +167,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final authService = AuthService();
-      final user = await authService.signIn(
+      final user = await authProvider.signIn(
         _emailController.text,
         _passwordController.text,
       );
 
       if (user != null && mounted) {
-        await Provider.of<UserProvider>(
-          context,
-          listen: false,
-        ).loadUser(user.uid);
+        await userProvider.loadUser(user.uid);
+        medicationProvider.init();
         if (mounted) {
           setState(() => _isLoading = false);
           navigator.pushReplacementNamed('/home');

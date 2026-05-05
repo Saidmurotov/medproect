@@ -79,15 +79,18 @@ class FirestoreService {
     return _db
         .collection('foodLogs')
         .where('userId', isEqualTo: userId)
-        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
+        .where(
+          'createdAt',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart),
+        )
         .where('createdAt', isLessThanOrEqualTo: Timestamp.fromDate(todayEnd))
         .snapshots()
         .map((snapshot) {
-      int total = 0;
-      for (var doc in snapshot.docs) {
-        total += (doc.data()['calories'] as num?)?.toInt() ?? 0;
-      }
-      return total;
-    });
+          int total = 0;
+          for (var doc in snapshot.docs) {
+            total += (doc.data()['calories'] as num?)?.toInt() ?? 0;
+          }
+          return total;
+        });
   }
 }

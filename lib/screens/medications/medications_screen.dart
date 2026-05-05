@@ -64,15 +64,6 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         elevation: 0,
         centerTitle: false,
         actions: [
-          // 🧪 Test notification — tezkor tekshirish uchun
-          IconButton(
-            onPressed: () => _showTestMenu(context),
-            icon: const Icon(
-              Icons.notifications_active,
-              color: AppColors.primary,
-            ),
-            tooltip: "Test Notification",
-          ),
           // ℹ️ MIUI / Xiaomi Help
           IconButton(
             onPressed: () => _showMIUIHelpDialog(context),
@@ -87,9 +78,6 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_showPermissionBanner) _buildPermissionBanner(l10n),
-
-            // Notification diagnostic card
-            _buildDiagnosticCard(l10n),
 
             const SizedBox(height: 16),
             Text(
@@ -129,165 +117,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     );
   }
 
-  Widget _buildDiagnosticCard(AppLocalizations l10n) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: _pendingCount > 0
-            ? AppColors.successLight
-            : AppColors.warningLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: (_pendingCount > 0 ? AppColors.success : AppColors.warning)
-              .withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            _pendingCount > 0
-                ? Icons.check_circle
-                : Icons.warning_amber_rounded,
-            color: _pendingCount > 0 ? AppColors.success : AppColors.warning,
-            size: 20,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _pendingCount > 0
-                  ? "$_pendingCount ta eslatma rejalashtirilgan ✅"
-                  : "Hozircha rejalashtirilgan eslatma yo'q",
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: _pendingCount > 0
-                    ? AppColors.success
-                    : AppColors.warning,
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _loadPendingCount,
-            child: Icon(
-              Icons.refresh,
-              size: 18,
-              color: _pendingCount > 0 ? AppColors.success : AppColors.warning,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showTestMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "🧪 Bildirishnoma testi",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            // Instant test
-            ListTile(
-              leading: const Icon(Icons.flash_on, color: Colors.orange),
-              title: const Text("Hoziroq test bildirishnoma"),
-              subtitle: const Text("Darhol ko'rsatiladi"),
-              onTap: () async {
-                Navigator.pop(ctx);
-                final scaffoldMsg = ScaffoldMessenger.of(context);
-                await NotificationService().showImmediateTestNotification();
-                if (!mounted) return;
-                scaffoldMsg.showSnackBar(
-                  const SnackBar(
-                    content: Text("✅ Test bildirishnoma yuborildi!"),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-            ),
-            // 10-second test
-            ListTile(
-              leading: const Icon(Icons.timer, color: AppColors.primary),
-              title: const Text("10 soniyadan keyin test"),
-              subtitle: const Text("Vaqtli eslatma ishlashini tekshiradi"),
-              onTap: () async {
-                Navigator.pop(ctx);
-                final scaffoldMsg = ScaffoldMessenger.of(context);
-                await NotificationService().showScheduledTestNotification();
-                if (!mounted) return;
-                scaffoldMsg.showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "⏰ 10 soniyadan keyin bildirishnoma chiqishi kerak!",
-                    ),
-                    backgroundColor: AppColors.primary,
-                    duration: Duration(seconds: 5),
-                  ),
-                );
-              },
-            ),
-            // Permission check
-            ListTile(
-              leading: const Icon(Icons.security, color: Colors.green),
-              title: const Text("Ruxsatlarni tekshirish"),
-              subtitle: const Text("Notification va Exact Alarm holati"),
-              onTap: () async {
-                Navigator.pop(ctx);
-                final scaffoldMsg = ScaffoldMessenger.of(context);
-                await NotificationService().debugPermissionStates();
-                final allOk = await NotificationService()
-                    .requestPermissionsIfNeeded();
-                if (!mounted) return;
-                scaffoldMsg.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      allOk
-                          ? "✅ Barcha ruxsatlar berilgan!"
-                          : "⚠️ Ba'zi ruxsatlar berilmagan. Debug konsolni tekshiring.",
-                    ),
-                    backgroundColor: allOk
-                        ? AppColors.success
-                        : AppColors.warning,
-                  ),
-                );
-                _checkPermissions();
-              },
-            ),
-            // Show pending
-            ListTile(
-              leading: const Icon(Icons.list_alt, color: Colors.deepPurple),
-              title: const Text("Rejalashtirilgan eslatmalar"),
-              subtitle: Text("$_pendingCount ta faol"),
-              onTap: () async {
-                Navigator.pop(ctx);
-                final scaffoldMsg = ScaffoldMessenger.of(context);
-                await _loadPendingCount();
-                await NotificationService().getPendingNotifications();
-                if (!mounted) return;
-                scaffoldMsg.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "📋 $_pendingCount ta eslatma rejalashtirilgan. Debug konsolni tekshiring.",
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildPermissionBanner(AppLocalizations l10n) {
     return Padding(

@@ -13,6 +13,7 @@ class UserProvider with ChangeNotifier {
   String? get error => _error;
 
   void setUser(UserModel? user) {
+    if (_user?.id == user?.id && _error == null) return;
     _user = user;
     _error = null;
     notifyListeners();

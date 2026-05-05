@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
+import '../../core/constants.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/bmi_card.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/auth_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/medication_provider.dart';
 import '../../widgets/language_toggle.dart';
 import '../../services/firestore_service.dart';
 import '../../widgets/symptom_advice_card.dart';
@@ -23,21 +27,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Stream<List<SymptomModel>>? _symptomsStream;
   Stream<int>? _caloriesStream;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  String? _activeUserId;
   bool _isOffline = false;
 
   @override
   void initState() {
     super.initState();
     _checkConnectivity();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = Provider.of<UserProvider>(context, listen: false).user;
-      if (user != null) {
-        setState(() {
-          _symptomsStream = FirestoreService().getSymptoms(user.id);
-          _caloriesStream = FirestoreService().getTodayTotalCalories(user.id);
-        });
-      }
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final user = Provider.of<UserProvider>(context).user;
+    if (user != null && _activeUserId != user.id) {
+      _activeUserId = user.id;
+      _symptomsStream = FirestoreService().getSymptoms(user.id);
+      _caloriesStream = FirestoreService().getTodayTotalCalories(user.id);
+    }
   }
 
   Future<void> _checkConnectivity() async {
@@ -48,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     // Listen for connectivity changes
-    Connectivity().onConnectivityChanged.listen((results) {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      results,
+    ) {
       if (mounted) {
         setState(() {
           _isOffline = results.contains(ConnectivityResult.none);
@@ -58,22 +68,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _connectivitySubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
-
-    // Re-init stream if user was null but now available
-    if (_symptomsStream == null && user != null) {
-      Future.microtask(() {
-        if (mounted) {
-          setState(() {
-            _symptomsStream = FirestoreService().getSymptoms(user.id);
-            _caloriesStream = FirestoreService().getTodayTotalCalories(user.id);
-          });
-        }
-      });
-    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -158,7 +162,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: AppTextStyles.h3,
                         ),
                         const SizedBox(height: 2),
-                        Text(l10n.trackHealth, style: AppTextStyles.bodySmall),
+                        if (user != null)
+                          Text(
+                            'Sizning tashxisingiz: ${user.diagnosis}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        else
+                          Text(l10n.trackHealth, style: AppTextStyles.bodySmall),
                       ],
                     ),
                   ),
@@ -173,7 +186,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: IconButton(
                       onPressed: () async {
-                        await AuthService().signOut();
+                        Provider.of<UserProvider>(
+                          context,
+                          listen: false,
+                        ).setUser(null);
+                        Provider.of<MedicationProvider>(
+                          context,
+                          listen: false,
+                        ).clear();
+                        await Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).signOut();
                         if (!context.mounted) return;
                         Navigator.pushReplacementNamed(context, '/login');
                       },
@@ -199,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   stream: _caloriesStream,
                   builder: (context, snapshot) {
                     final current = snapshot.data ?? 0;
-                    final target = 2000; // Standart kunlik norma
+                    const target = AppConstants.defaultDailyCalorieTarget;
                     final progress = (current / target).clamp(0.0, 1.0);
 
                     return Container(
@@ -228,7 +252,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         TextSpan(
                                           text: '$current',
-                                          style: AppTextStyles.statMedium.copyWith(color: AppColors.primary),
+                                          style: AppTextStyles.statMedium
+                                              .copyWith(
+                                                color: AppColors.primary,
+                                              ),
                                         ),
                                         TextSpan(
                                           text: ' / $target kkal',
@@ -245,7 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: AppColors.primarySurface,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.bolt_rounded, color: AppColors.primary, size: 24),
+                                child: const Icon(
+                                  Icons.bolt_rounded,
+                                  color: AppColors.primary,
+                                  size: 24,
+                                ),
                               ),
                             ],
                           ),
@@ -255,9 +286,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: LinearProgressIndicator(
                               value: progress,
                               minHeight: 12,
-                              backgroundColor: AppColors.border.withValues(alpha: 0.5),
+                              backgroundColor: AppColors.border.withValues(
+                                alpha: 0.5,
+                              ),
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                progress >= 1.0 ? AppColors.danger : AppColors.primary,
+                                progress >= 1.0
+                                    ? AppColors.danger
+                                    : AppColors.primary,
                               ),
                             ),
                           ),
@@ -266,13 +301,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                progress >= 1.0 ? 'Norma bajarildi! 🎉' : 'Yana ${target - current} kkal kerak',
+                                progress >= 1.0
+                                    ? 'Norma bajarildi! 🎉'
+                                    : 'Yana ${target - current} kkal kerak',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: progress >= 1.0 ? AppColors.success : AppColors.textTertiary,
+                                  color: progress >= 1.0
+                                      ? AppColors.success
+                                      : AppColors.textTertiary,
                                 ),
                               ),
-                              Text('${(progress * 100).toInt()}%', style: AppTextStyles.label),
+                              Text(
+                                '${(progress * 100).toInt()}%',
+                                style: AppTextStyles.label,
+                              ),
                             ],
                           ),
                         ],
@@ -338,6 +380,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _ActionCard(
+                      icon: Icons.restaurant_rounded,
+                      iconColor: AppColors.success,
+                      bgColor: AppColors.successLight,
+                      label: 'Mening parhezim',
+                      onTap: () => Navigator.pushNamed(context, '/diet'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionCard(
                       icon: Icons.bar_chart_rounded,
                       iconColor: AppColors.primary,
                       bgColor: AppColors.primarySurface,
@@ -345,6 +401,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => Navigator.pushNamed(context, '/report'),
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  const Spacer(),
                 ],
               ),
             ],

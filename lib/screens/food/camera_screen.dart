@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/constants/colors.dart';
 import '../../services/food_ai_service.dart';
@@ -8,7 +7,7 @@ import '../../models/food_result_model.dart';
 import 'result_screen.dart';
 
 /// Foydalanuvchi ovqatni rasmga oladigan ekran.
-/// Rasm → Gemini AI → ResultScreen
+/// Rasm -> ML Kit labeler -> ResultScreen
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
 
@@ -20,23 +19,8 @@ class _CameraScreenState extends State<CameraScreen> {
   bool _isAnalyzing = false;
   String _statusText = '';
 
-  /// Internet ulanishini tekshirish
-  Future<bool> _hasInternet() async {
-    final result = await Connectivity().checkConnectivity();
-    return !result.contains(ConnectivityResult.none);
-  }
-
   /// Kamerani ochib rasm olish
   Future<void> _openCamera() async {
-    // Internet tekshiruvi
-    if (!await _hasInternet()) {
-      _showErrorDialog(
-        'Internet aloqasi yo\'q',
-        'AI tahlil uchun internet kerak. Iltimos, ulanib qayta urinib ko\'ring.',
-      );
-      return;
-    }
-
     final picker = ImagePicker();
     final picked = await picker.pickImage(
       source: ImageSource.camera,
@@ -56,7 +40,7 @@ class _CameraScreenState extends State<CameraScreen> {
     await _analyzeImage(imageFile);
   }
 
-  /// Gemini API ga rasmni yuborish va natijani qayta ishlash
+  /// ML Kit natijasini modelga aylantirish
   Future<void> _analyzeImage(File imageFile) async {
     try {
       final jsonResult = await FoodAiService.analyzeFood(imageFile);
@@ -115,7 +99,9 @@ class _CameraScreenState extends State<CameraScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+            ),
             child: const Text('Bekor qilish'),
           ),
         ],
@@ -197,7 +183,7 @@ class _CameraScreenState extends State<CameraScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'AI tahlil qilmoqda — 2–4 soniya',
+            'Offline tahlil qilinmoqda - 2-4 soniya',
             style: TextStyle(color: Colors.white54, fontSize: 13),
           ),
         ],
@@ -241,7 +227,7 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Gemini AI kaloriya, oqsil, yog\' va\nuglevodni avtomatik hisoblab beradi',
+              'Rasm asosida kaloriya, oqsil, yog\' va\nuglevod taxminan hisoblanadi',
               style: TextStyle(
                 color: Colors.white60,
                 fontSize: 14,
@@ -254,7 +240,10 @@ class _CameraScreenState extends State<CameraScreen> {
             GestureDetector(
               onTap: _openCamera,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryLight],
@@ -271,7 +260,11 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.camera_alt_rounded, color: Colors.white, size: 22),
+                    Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                     SizedBox(width: 10),
                     Text(
                       'Rasmga olish',

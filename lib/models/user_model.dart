@@ -9,6 +9,7 @@ class UserModel {
   final String gender;
   final double height; // santimetrda
   final double weight; // kilogrammda
+  final String diagnosis;
   final DateTime createdAt;
 
   UserModel({
@@ -19,6 +20,7 @@ class UserModel {
     required this.gender,
     required this.height,
     required this.weight,
+    required this.diagnosis,
     required this.createdAt,
   });
 
@@ -32,6 +34,7 @@ class UserModel {
       gender: map['gender'] ?? 'male',
       height: (map['height'] ?? 0).toDouble(),
       weight: (map['weight'] ?? 0).toDouble(),
+      diagnosis: map['diagnosis'] ?? '',
       createdAt: _parseDateTime(map['createdAt']),
     );
   }
@@ -45,6 +48,7 @@ class UserModel {
       'gender': gender,
       'height': height,
       'weight': weight,
+      'diagnosis': diagnosis,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

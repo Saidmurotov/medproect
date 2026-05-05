@@ -139,5 +139,6 @@
   "generalAdviceFever": "Ko'proq suyuqlik iching va dam oling. Tana haroratini kuzating.",
   "generalAdviceConstipation": "Kletchatka va suv iste'molini oshiring.",
   "generalAdviceDiarrhea": "Yengil ovqatlaning va suv balansini saqlang.",
-  "generalAdviceBelching": "Gazli ichimliklardan saqlaning va sekinroq ovqatlaning."
+  "generalAdviceBelching": "Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.",
+  "foodCamera": "Kaloriya"
 }

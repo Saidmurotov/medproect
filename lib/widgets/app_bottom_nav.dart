@@ -68,7 +68,7 @@ class AppBottomNavBar extends StatelessWidget {
                 child: _NavItem(
                   icon: Icons.restaurant_menu_outlined,
                   activeIcon: Icons.restaurant_menu_rounded,
-                  label: 'Kaloriya',
+                  label: l10n.foodCamera,
                   isActive: currentIndex == 4,
                   onTap: () => _navigate(context, 4),
                 ),

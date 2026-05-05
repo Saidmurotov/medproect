@@ -7,6 +7,7 @@ import '../screens/profile/monthly_report_screen.dart';
 import '../screens/medications/medications_screen.dart';
 import '../screens/medications/add_edit_medication_screen.dart';
 import '../screens/food/camera_screen.dart';
+import '../screens/food/diet_screen.dart';
 import '../models/medication_model.dart';
 
 class AppRoutes {
@@ -18,6 +19,7 @@ class AppRoutes {
   static const String medications = '/medications';
   static const String addMedication = '/add-medication';
   static const String foodCamera = '/food-camera';
+  static const String diet = '/diet';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -40,6 +42,8 @@ class AppRoutes {
         );
       case foodCamera:
         return MaterialPageRoute(builder: (_) => const CameraScreen());
+      case diet:
+        return MaterialPageRoute(builder: (_) => const DietScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

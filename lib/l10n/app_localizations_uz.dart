@@ -453,4 +453,7 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get generalAdviceBelching =>
       'Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.';
+
+  @override
+  String get foodCamera => 'Kaloriya';
 }

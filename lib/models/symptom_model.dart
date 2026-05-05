@@ -5,6 +5,7 @@ class SymptomModel {
   final String userId;
   final List<String> symptoms; // Tanlangan simptomlar ro'yxati
   final int painLevel; // Og'riq darajasi (1-10)
+  final String? note;
   final DateTime date;
 
   SymptomModel({
@@ -12,6 +13,7 @@ class SymptomModel {
     required this.userId,
     required this.symptoms,
     required this.painLevel,
+    this.note,
     required this.date,
   });
 
@@ -21,6 +23,7 @@ class SymptomModel {
       userId: map['userId'] ?? '',
       symptoms: List<String>.from(map['symptoms'] ?? []),
       painLevel: map['painLevel'] ?? 0,
+      note: map['note'] as String?,
       date: _parseDateTime(map['date']),
     );
   }
@@ -30,6 +33,7 @@ class SymptomModel {
       'userId': userId,
       'symptoms': symptoms,
       'painLevel': painLevel,
+      if (note != null && note!.trim().isNotEmpty) 'note': note!.trim(),
       'date': Timestamp.fromDate(date),
     };
   }

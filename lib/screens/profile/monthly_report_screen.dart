@@ -9,6 +9,8 @@ import '../../l10n/app_localizations.dart';
 import '../../services/firestore_service.dart';
 import '../../providers/user_provider.dart';
 import '../../models/symptom_model.dart';
+import '../../services/pdf_service.dart';
+import '../../providers/medication_provider.dart';
 
 class MonthlyReportScreen extends StatelessWidget {
   const MonthlyReportScreen({super.key});
@@ -121,9 +123,9 @@ class MonthlyReportScreen extends StatelessWidget {
                         icon: Icons.monitor_weight_outlined,
                         iconColor: AppColors.success,
                         iconBgColor: AppColors.successLight,
-                        title: '0.0 kg', // Future: Weight tracking
-                        subtitle: l10n.weightChange,
-                        isPositive: true,
+                        title: '${user.weight.toStringAsFixed(1)} kg',
+                        subtitle: l10n.weight,
+                        isPositive: false,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -132,13 +134,18 @@ class MonthlyReportScreen extends StatelessWidget {
                         icon: Icons.data_usage_rounded,
                         iconColor: AppColors.primary,
                         iconBgColor: AppColors.primarySurface,
-                        title: '0.0', // Future: BMI tracking
-                        subtitle: l10n.bmiChange,
-                        isPositive: true,
+                        title: user.bmi.toStringAsFixed(1),
+                        subtitle: l10n.bmiTitle,
+                        isPositive: false,
                       ),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 20),
+
+                // PDF Export Button
+                _PdfExportButton(symptoms: symptoms),
 
                 const SizedBox(height: 28),
 
@@ -380,5 +387,68 @@ class _ImprovementRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _PdfExportButton extends StatefulWidget {
+  final List<SymptomModel> symptoms;
+  const _PdfExportButton({required this.symptoms});
+
+  @override
+  State<_PdfExportButton> createState() => _PdfExportButtonState();
+}
+
+class _PdfExportButtonState extends State<_PdfExportButton> {
+  bool _isExporting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _isExporting ? null : _exportPdf,
+        icon: _isExporting
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.picture_as_pdf_rounded),
+        label: Text(_isExporting ? 'Tayyorlanmoqda...' : 'Tarixni PDF yuklash'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          side: const BorderSide(color: AppColors.primary),
+          foregroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportPdf() async {
+    setState(() => _isExporting = true);
+    try {
+      final user = Provider.of<UserProvider>(context, listen: false).user!;
+      final meds =
+          Provider.of<MedicationProvider>(context, listen: false).medications;
+
+      await PdfService().generateAndPrintReport(
+        user: user,
+        symptoms: widget.symptoms,
+        medications: meds,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Xato: $e'), backgroundColor: AppColors.danger),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isExporting = false);
+      }
+    }
   }
 }

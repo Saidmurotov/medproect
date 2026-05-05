@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
@@ -6,6 +8,7 @@ class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   User? _user;
   bool _isLoading = true;
+  StreamSubscription<User?>? _authSubscription;
 
   User? get user => _user;
   bool get isLoading => _isLoading;
@@ -17,25 +20,27 @@ class AuthProvider with ChangeNotifier {
 
   void _init() {
     // Listen to Firebase Auth state changes
-    _authService.user.listen((User? user) {
+    _authSubscription = _authService.user.listen((User? user) {
       _user = user;
       _isLoading = false;
       notifyListeners();
     });
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<User?> signIn(String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _authService.signIn(email, password);
+      final signedInUser = await _authService.signIn(email, password);
+      _user = signedInUser;
+      return signedInUser;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> register({
+  Future<User?> register({
     required String email,
     required String password,
     required String firstName,
@@ -44,11 +49,12 @@ class AuthProvider with ChangeNotifier {
     required String gender,
     required double height,
     required double weight,
+    required String diagnosis,
   }) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _authService.register(
+      final registeredUser = await _authService.register(
         email: email,
         password: password,
         firstName: firstName,
@@ -57,7 +63,10 @@ class AuthProvider with ChangeNotifier {
         gender: gender,
         height: height,
         weight: weight,
+        diagnosis: diagnosis,
       );
+      _user = registeredUser;
+      return registeredUser;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -66,5 +75,11 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signOut() async {
     await _authService.signOut();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }

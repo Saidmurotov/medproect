@@ -937,6 +937,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Gazli ichimliklardan saqlaning va sekinroq ovqatlaning.'**
   String get generalAdviceBelching;
+
+  /// No description provided for @foodCamera.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kaloriya'**
+  String get foodCamera;
 }
 
 class _AppLocalizationsDelegate

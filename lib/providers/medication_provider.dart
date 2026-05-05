@@ -47,6 +47,18 @@ class MedicationProvider with ChangeNotifier {
     _subscriptions.add(logSub);
   }
 
+  void clear() {
+    _cancelSubscriptions();
+    if (_medications.isEmpty && _todayLog == null && _lastError == null) {
+      return;
+    }
+    _medications = [];
+    _todayLog = null;
+    _lastError = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   void _cancelSubscriptions() {
     for (var sub in _subscriptions) {
       sub.cancel();
@@ -121,13 +133,7 @@ class MedicationProvider with ChangeNotifier {
   Future<void> deleteMedication(String medId) async {
     try {
       // Cancel notifications for this medication
-      final baseId = _generateIntId(medId);
-      // We cancel all possible IDs generated for this medication
-      for (int i = 0; i < 70; i++) {
-        await _notificationService.cancelMedicationReminder(baseId * 70 + i);
-      }
-      // Also cancel the base IDs
-      await _notificationService.cancelMedicationReminder(baseId);
+      await _cancelLocalNotifications(medId);
 
       await _service.deleteMedication(medId);
     } catch (e) {
@@ -137,15 +143,12 @@ class MedicationProvider with ChangeNotifier {
 
   /// Helper to map Medication model to new NotificationService API
   Future<void> _scheduleLocalNotifications(Medication med) async {
-    final baseId = _generateIntId(med.id);
-
     // Cancel existing first (to avoid duplicates or outdated times)
-    for (int i = 0; i < 70; i++) {
-      await _notificationService.cancelMedicationReminder(baseId * 70 + i);
-    }
-    await _notificationService.cancelMedicationReminder(baseId);
+    await _cancelLocalNotifications(med.id);
 
     if (!med.reminderEnabled || med.scheduleType == ScheduleType.prn) return;
+
+    final baseId = _generateStableIntId(med.id);
 
     for (int i = 0; i < med.times.length; i++) {
       final timeParts = med.times[i].split(':');
@@ -154,7 +157,7 @@ class MedicationProvider with ChangeNotifier {
         minute: int.parse(timeParts[1]),
       );
 
-      final specificId = baseId * 70 + (i * 10);
+      final specificId = baseId * 100 + i;
 
       if (med.scheduleType == ScheduleType.daily) {
         await _notificationService.scheduleMedicationReminder(
@@ -175,8 +178,38 @@ class MedicationProvider with ChangeNotifier {
     }
   }
 
-  int _generateIntId(String medId) {
-    return medId.hashCode.abs() % 100000;
+  Future<void> _cancelLocalNotifications(String medId) async {
+    final baseId = _generateStableIntId(medId);
+
+    for (int i = 0; i < 50; i++) {
+      final dailyId = baseId * 100 + i;
+      await _notificationService.cancelMedicationReminder(dailyId);
+
+      final customBaseId = baseId * 100 + i;
+      for (int day = 1; day <= 7; day++) {
+        await _notificationService.cancelMedicationReminder(
+          customBaseId * 10 + day,
+        );
+      }
+    }
+
+    // Remove reminders created by the previous hashCode-based scheme.
+    final legacyBaseId = medId.hashCode.abs() % 100000;
+    await _notificationService.cancelMedicationReminder(legacyBaseId);
+    for (int i = 0; i < 70; i++) {
+      await _notificationService.cancelMedicationReminder(
+        legacyBaseId * 70 + i,
+      );
+    }
+  }
+
+  int _generateStableIntId(String medId) {
+    var hash = 2166136261;
+    for (final codeUnit in medId.codeUnits) {
+      hash ^= codeUnit;
+      hash = (hash * 16777619) & 0x7fffffff;
+    }
+    return hash % 100000;
   }
 
   /// Request notification permissions from UI

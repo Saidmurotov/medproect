@@ -20,6 +20,7 @@ class AuthService {
     required String gender,
     required double height,
     required double weight,
+    required String diagnosis,
   }) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -36,6 +37,7 @@ class AuthService {
           gender: gender,
           height: height,
           weight: weight,
+          diagnosis: diagnosis,
           createdAt: DateTime.now(),
         );
 

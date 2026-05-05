@@ -2,20 +2,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
+import '../../core/constants/diet_tables.dart';
+import '../../providers/user_provider.dart';
 import '../../models/food_result_model.dart';
 
-/// Gemini tahlil natijasini ko'rsatib, Firestore ga saqlash imkonini beruvchi ekran.
+/// Ovqat tahlili natijasini ko'rsatib, Firestore ga saqlash imkonini beruvchi ekran.
 class ResultScreen extends StatefulWidget {
   final File image;
   final FoodResultModel result;
 
-  const ResultScreen({
-    super.key,
-    required this.image,
-    required this.result,
-  });
+  const ResultScreen({super.key, required this.image, required this.result});
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -32,9 +31,22 @@ class _ResultScreenState extends State<ResultScreen> {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) throw Exception('Foydalanuvchi tizimga kirmagan');
 
+      final data = widget.result.toFirestore(uid);
+      
+      // Check if forbidden
+      final user = Provider.of<UserProvider>(context, listen: false).user;
+      if (user != null) {
+        final tableId = DietConstants.diseaseToTable[user.diagnosis] ?? '№15';
+        final diet = DietConstants.dietTables[tableId];
+        if (diet != null) {
+          final isForbidden = _isFoodForbidden(widget.result.foodName, diet);
+          data['isForbidden'] = isForbidden;
+        }
+      }
+
       await FirebaseFirestore.instance
           .collection('foodLogs')
-          .add(widget.result.toFirestore(uid));
+          .add(data);
 
       if (!mounted) return;
 
@@ -48,7 +60,9 @@ class _ResultScreenState extends State<ResultScreen> {
             ],
           ),
           backgroundColor: AppColors.success,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           margin: const EdgeInsets.all(12),
           behavior: SnackBarBehavior.floating,
         ),
@@ -64,10 +78,92 @@ class _ResultScreenState extends State<ResultScreen> {
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
+  }
+
+  bool _isFoodForbidden(String? foodName, DietTable diet) {
+    if (foodName == null) return false;
+    final name = foodName.toLowerCase();
+    // Check both languages
+    for (var f in diet.forbiddenUz) {
+      if (name.contains(f.toLowerCase())) return true;
+    }
+    for (var f in diet.forbiddenRu) {
+      if (name.contains(f.toLowerCase())) return true;
+    }
+    return false;
+  }
+
+  Widget _buildFoodHeader(BuildContext context, FoodResultModel r) {
+    final user = Provider.of<UserProvider>(context).user;
+    bool isForbidden = false;
+    String? tableId;
+
+    if (user != null) {
+      tableId = DietConstants.diseaseToTable[user.diagnosis] ?? '№15';
+      final diet = DietConstants.dietTables[tableId];
+      if (diet != null) {
+        isForbidden = _isFoodForbidden(r.foodName, diet);
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isForbidden ? AppColors.dangerLight : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.cardShadow,
+        border: isForbidden ? Border.all(color: AppColors.danger, width: 1.5) : null,
+      ),
+      child: Column(
+        children: [
+          Icon(
+            isForbidden ? Icons.warning_rounded : Icons.restaurant_menu_rounded,
+            size: 32,
+            color: isForbidden ? AppColors.danger : AppColors.primary,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            r.foodName ?? 'Nomalum ovqat',
+            style: AppTextStyles.h2.copyWith(
+              color: isForbidden ? AppColors.danger : AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (isForbidden) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.danger,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'TAQIQLANGAN! (Stol $tableId)',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+          if (r.portion != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              r.portion!,
+              style: AppTextStyles.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   @override
@@ -94,47 +190,13 @@ class _ResultScreenState extends State<ResultScreen> {
             // Olingan rasm
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.file(
-                widget.image,
-                height: 220,
-                fit: BoxFit.cover,
-              ),
+              child: Image.file(widget.image, height: 220, fit: BoxFit.cover),
             ),
 
             const SizedBox(height: 20),
 
             // Ovqat nomi + porsiya
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: AppColors.cardShadow,
-              ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.restaurant_menu_rounded,
-                    size: 32,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    r.foodName ?? 'Nomalum ovqat',
-                    style: AppTextStyles.h2,
-                    textAlign: TextAlign.center,
-                  ),
-                  if (r.portion != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      r.portion!,
-                      style: AppTextStyles.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            _buildFoodHeader(context, r),
 
             const SizedBox(height: 16),
 

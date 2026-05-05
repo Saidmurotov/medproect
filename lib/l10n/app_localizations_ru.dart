@@ -446,4 +446,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get generalAdviceBelching =>
       'Избегайте газированных напитков и ешьте медленнее.';
+
+  @override
+  String get foodCamera => 'Калории';
 }

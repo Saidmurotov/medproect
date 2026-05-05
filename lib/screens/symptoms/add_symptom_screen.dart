@@ -393,6 +393,7 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
       userId: user.id,
       symptoms: _selectedSymptoms.toList(),
       painLevel: _painLevel.toInt(),
+      note: _commentController.text.trim(),
       date: DateTime.now(),
     );
 

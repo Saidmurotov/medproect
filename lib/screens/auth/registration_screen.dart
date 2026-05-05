@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
-import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/form_hints.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/medication_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../core/constants/diet_tables.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -27,6 +29,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _heightController = TextEditingController();
   final _weightController = TextEditingController();
   String _gender = 'male';
+  String _diagnosis = 'Сурункали гастрит'; // Default selection
   bool _isLoading = false;
   String _emailValue = '';
   String _passwordValue = '';
@@ -162,6 +165,73 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
             const SizedBox(height: 24),
 
+            // --- Card 2.5: Diagnosis ---
+            _SectionTitle(title: '🏥  Tashxis'),
+            const SizedBox(height: 8),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Kasallik turi',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardWhite,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _diagnosis,
+                        isExpanded: true,
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: AppColors.primary,
+                        ),
+                        items: DietConstants.diseaseToTable.keys
+                            .map((String disease) {
+                          return DropdownMenuItem<String>(
+                            value: disease,
+                            child: Text(
+                              disease,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _diagnosis = newValue;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Parhez: ${DietConstants.diseaseToTable[_diagnosis]}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
             // --- Card 3: Account ---
             _SectionTitle(title: '🔐  ${l10n.accountInfo}'),
             const SizedBox(height: 8),
@@ -225,12 +295,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final l10n = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context);
     final scaffoldMsg = ScaffoldMessenger.of(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final medicationProvider = Provider.of<MedicationProvider>(
+      context,
+      listen: false,
+    );
 
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        final authService = AuthService();
-        final user = await authService.register(
+        final user = await authProvider.register(
           email: _emailController.text,
           password: _passwordController.text,
           firstName: _firstNameController.text,
@@ -239,13 +314,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           gender: _gender,
           height: double.tryParse(_heightController.text) ?? 0,
           weight: double.tryParse(_weightController.text) ?? 0,
+          diagnosis: _diagnosis,
         );
 
         if (user != null && mounted) {
-          await Provider.of<UserProvider>(
-            context,
-            listen: false,
-          ).loadUser(user.uid);
+          await userProvider.loadUser(user.uid);
+          medicationProvider.init();
           if (mounted) {
             navigator.pushReplacementNamed('/home');
           }
