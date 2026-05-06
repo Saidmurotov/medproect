@@ -481,24 +481,14 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
 
   void _showMIUIHelpDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isUz = Localizations.localeOf(context).languageCode == 'uz';
-    final helpLines = isUz
-        ? [
-            'Bildirishnomalar vaqtida chiqishi uchun quyidagilarni bajaring:',
-            '1. Ilova belgisini bosib turing -> App info',
-            '2. Autostart ni yoqing',
-            '3. Battery saver -> No restrictions',
-            '4. Other permissions -> Display pop-up windows',
-            'Agar ishlamasa, Developer options ichida MIUI optimization sozlamasini tekshiring.',
-          ]
-        : [
-            'Чтобы напоминания приходили вовремя, проверьте настройки:',
-            '1. Зажмите иконку приложения -> App info',
-            '2. Включите Autostart',
-            '3. Battery saver -> No restrictions',
-            '4. Other permissions -> Display pop-up windows',
-            'Если не работает, проверьте MIUI optimization в Developer options.',
-          ];
+    final helpLines = [
+      l10n.miuiHelpIntro,
+      l10n.miuiHelpStep1,
+      l10n.miuiHelpStep2,
+      l10n.miuiHelpStep3,
+      l10n.miuiHelpStep4,
+      l10n.miuiHelpFallback,
+    ];
 
     showDialog(
       context: context,

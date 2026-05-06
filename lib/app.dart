@@ -16,7 +16,7 @@ class MedProectApp extends StatelessWidget {
     final languageProvider = Provider.of<LanguageProvider>(context);
 
     return MaterialApp(
-      title: 'MedProect',
+      title: 'DGI Health',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       navigatorKey: navigatorKey,
@@ -27,10 +27,7 @@ class MedProectApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('uz', ''),
-        Locale('ru', ''),
-      ],
+      supportedLocales: const [Locale('uz', ''), Locale('ru', '')],
       onGenerateRoute: AppRoutes.generateRoute,
       initialRoute: AppRoutes.login,
     );

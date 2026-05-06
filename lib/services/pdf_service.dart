@@ -32,7 +32,7 @@ class PdfService {
             pw.SizedBox(height: 40),
             pw.Divider(),
             pw.Text(
-              'Ushbu hisobot MedProect ilovasi tomonidan yaratildi.',
+              'Ushbu hisobot DGI Health ilovasi tomonidan yaratildi.',
               style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey),
             ),
           ];
@@ -42,7 +42,7 @@ class PdfService {
 
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
-      name: 'MedProect_Hisobot_${user.firstName}.pdf',
+      name: 'DGI_Health_Hisobot_${user.firstName}.pdf',
     );
   }
 
@@ -65,7 +65,7 @@ class PdfService {
           ],
         ),
         pw.Text(
-          'MedProect',
+          'DGI Health',
           style: pw.TextStyle(fontSize: 18, color: PdfColors.blueGrey),
         ),
       ],

@@ -1016,6 +1016,60 @@ abstract class AppLocalizations {
   /// **'Xiaomi sozlamalari'**
   String get miuiSettings;
 
+  /// No description provided for @allowedFoodsTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'MUMKIN'**
+  String get allowedFoodsTitle;
+
+  /// No description provided for @forbiddenFoodsTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'MUMKIN EMAS'**
+  String get forbiddenFoodsTitle;
+
+  /// No description provided for @consultDoctorNote.
+  ///
+  /// In uz, this message translates to:
+  /// **'Eslatma: har doim shifokoringiz bilan maslahatlashing.'**
+  String get consultDoctorNote;
+
+  /// No description provided for @miuiHelpIntro.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bildirishnomalar vaqtida chiqishi uchun quyidagilarni bajaring:'**
+  String get miuiHelpIntro;
+
+  /// No description provided for @miuiHelpStep1.
+  ///
+  /// In uz, this message translates to:
+  /// **'1. Ilova belgisini bosib turing -> App info'**
+  String get miuiHelpStep1;
+
+  /// No description provided for @miuiHelpStep2.
+  ///
+  /// In uz, this message translates to:
+  /// **'2. Autostart ni yoqing'**
+  String get miuiHelpStep2;
+
+  /// No description provided for @miuiHelpStep3.
+  ///
+  /// In uz, this message translates to:
+  /// **'3. Battery saver -> No restrictions'**
+  String get miuiHelpStep3;
+
+  /// No description provided for @miuiHelpStep4.
+  ///
+  /// In uz, this message translates to:
+  /// **'4. Other permissions -> Display pop-up windows'**
+  String get miuiHelpStep4;
+
+  /// No description provided for @miuiHelpFallback.
+  ///
+  /// In uz, this message translates to:
+  /// **'Agar ishlamasa, Developer options ichida MIUI optimization sozlamasini tekshiring.'**
+  String get miuiHelpFallback;
+
   /// No description provided for @openSettings.
   ///
   /// In uz, this message translates to:

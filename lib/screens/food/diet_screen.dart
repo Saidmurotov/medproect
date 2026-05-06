@@ -13,8 +13,7 @@ class DietScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).languageCode;
-    final isUz = locale == 'uz';
+    final isUz = Localizations.localeOf(context).languageCode == 'uz';
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -100,7 +99,7 @@ class DietScreen extends StatelessWidget {
 
             // Allowed Section
             _buildSection(
-              title: isUz ? 'MUMKIN ✅' : 'МОЖНО ✅',
+              title: '${l10n.allowedFoodsTitle} ✅',
               items: allowed,
               color: AppColors.success,
               bgColor: AppColors.successLight,
@@ -110,7 +109,7 @@ class DietScreen extends StatelessWidget {
 
             // Forbidden Section
             _buildSection(
-              title: isUz ? 'MUMKIN EMAS ❌' : 'НЕЛЬЗЯ ❌',
+              title: '${l10n.forbiddenFoodsTitle} ❌',
               items: forbidden,
               color: AppColors.danger,
               bgColor: AppColors.dangerLight,
@@ -132,9 +131,7 @@ class DietScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      isUz
-                          ? 'Eslatma: har doim shifokoringiz bilan maslahatlashing.'
-                          : 'Примечание: всегда консультируйтесь с лечащим врачом.',
+                      l10n.consultDoctorNote,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.orange,

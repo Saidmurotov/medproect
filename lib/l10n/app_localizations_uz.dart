@@ -496,6 +496,36 @@ class AppLocalizationsUz extends AppLocalizations {
   String get miuiSettings => 'Xiaomi sozlamalari';
 
   @override
+  String get allowedFoodsTitle => 'MUMKIN';
+
+  @override
+  String get forbiddenFoodsTitle => 'MUMKIN EMAS';
+
+  @override
+  String get consultDoctorNote =>
+      'Eslatma: har doim shifokoringiz bilan maslahatlashing.';
+
+  @override
+  String get miuiHelpIntro =>
+      'Bildirishnomalar vaqtida chiqishi uchun quyidagilarni bajaring:';
+
+  @override
+  String get miuiHelpStep1 => '1. Ilova belgisini bosib turing -> App info';
+
+  @override
+  String get miuiHelpStep2 => '2. Autostart ni yoqing';
+
+  @override
+  String get miuiHelpStep3 => '3. Battery saver -> No restrictions';
+
+  @override
+  String get miuiHelpStep4 => '4. Other permissions -> Display pop-up windows';
+
+  @override
+  String get miuiHelpFallback =>
+      'Agar ishlamasa, Developer options ichida MIUI optimization sozlamasini tekshiring.';
+
+  @override
   String get openSettings => 'Sozlamalarni ochish';
 
   @override

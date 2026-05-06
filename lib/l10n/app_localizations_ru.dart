@@ -489,6 +489,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get miuiSettings => 'Настройки Xiaomi';
 
   @override
+  String get allowedFoodsTitle => 'МОЖНО';
+
+  @override
+  String get forbiddenFoodsTitle => 'НЕЛЬЗЯ';
+
+  @override
+  String get consultDoctorNote =>
+      'Примечание: всегда консультируйтесь с лечащим врачом.';
+
+  @override
+  String get miuiHelpIntro =>
+      'Чтобы напоминания приходили вовремя, проверьте настройки:';
+
+  @override
+  String get miuiHelpStep1 => '1. Зажмите иконку приложения -> App info';
+
+  @override
+  String get miuiHelpStep2 => '2. Включите Autostart';
+
+  @override
+  String get miuiHelpStep3 => '3. Battery saver -> No restrictions';
+
+  @override
+  String get miuiHelpStep4 => '4. Other permissions -> Display pop-up windows';
+
+  @override
+  String get miuiHelpFallback =>
+      'Если не работает, проверьте MIUI optimization в Developer options.';
+
+  @override
   String get openSettings => 'Открыть настройки';
 
   @override
