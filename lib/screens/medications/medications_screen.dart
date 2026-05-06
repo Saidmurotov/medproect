@@ -18,13 +18,11 @@ class MedicationsScreen extends StatefulWidget {
 
 class _MedicationsScreenState extends State<MedicationsScreen> {
   bool _showPermissionBanner = false;
-  int _pendingCount = 0;
 
   @override
   void initState() {
     super.initState();
     _checkPermissions();
-    _loadPendingCount();
   }
 
   Future<void> _checkPermissions() async {
@@ -32,15 +30,6 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     if (mounted) {
       setState(() {
         _showPermissionBanner = !status.isGranted;
-      });
-    }
-  }
-
-  Future<void> _loadPendingCount() async {
-    final pending = await NotificationService().getPendingNotifications();
-    if (mounted) {
-      setState(() {
-        _pendingCount = pending.length;
       });
     }
   }
@@ -68,7 +57,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
           IconButton(
             onPressed: () => _showMIUIHelpDialog(context),
             icon: const Icon(Icons.info_outline, color: Colors.orange),
-            tooltip: "MIUI Sozlamalari",
+            tooltip: l10n.miuiSettings,
           ),
         ],
       ),
@@ -116,8 +105,6 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }
-
-
 
   Widget _buildPermissionBanner(AppLocalizations l10n) {
     return Padding(
@@ -210,7 +197,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       if (pendingMeds.isNotEmpty) ...[
         _buildGroupHeader(
           icon: '⏳',
-          title: 'Kutilmoqda',
+          title: l10n.pending,
           count: pendingMeds.length,
           color: Colors.orange,
         ),
@@ -220,13 +207,14 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         const SizedBox(height: 12),
         _buildGroupHeader(
           icon: '✅',
-          title: 'Bajarilgan',
+          title: l10n.completed,
           count: takenMeds.length,
           color: Colors.green,
         ),
         ...takenMeds.map((item) => _buildTodayItem(item, provider, l10n)),
       ],
-      if (pendingMeds.isEmpty && takenMeds.isNotEmpty) _buildAllDoneWidget(),
+      if (pendingMeds.isEmpty && takenMeds.isNotEmpty)
+        _buildAllDoneWidget(l10n),
     ];
   }
 
@@ -259,7 +247,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     );
   }
 
-  Widget _buildAllDoneWidget() {
+  Widget _buildAllDoneWidget(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(16),
@@ -268,24 +256,24 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Text('🎉', style: TextStyle(fontSize: 24)),
-          SizedBox(width: 12),
+          const Icon(Icons.check_circle, color: Colors.green, size: 28),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Barakalla!',
-                  style: TextStyle(
+                  l10n.allDoneTitle,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,
                   ),
                 ),
                 Text(
-                  'Bugungi barcha dorilarni qabul qildingiz',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  l10n.allDoneSubtitle,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
@@ -453,14 +441,16 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                     ),
                   ),
                   Text(
-                    "${med.dose ?? ''} • ${med.times.join(', ')}",
+                    "${med.dose ?? ''} - ${med.times.join(', ')}",
                     style: const TextStyle(
                       color: AppColors.textTertiary,
                       fontSize: 12,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "Eslatma: ${med.reminderEnabled ? '✅ Yoqilgan' : '❌ O\'chirilgan'}",
+                    "${l10n.reminders}: ${med.reminderEnabled ? l10n.taken : l10n.notTaken}",
                     style: TextStyle(
                       color: med.reminderEnabled
                           ? AppColors.success
@@ -490,42 +480,56 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
   }
 
   void _showMIUIHelpDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isUz = Localizations.localeOf(context).languageCode == 'uz';
+    final helpLines = isUz
+        ? [
+            'Bildirishnomalar vaqtida chiqishi uchun quyidagilarni bajaring:',
+            '1. Ilova belgisini bosib turing -> App info',
+            '2. Autostart ni yoqing',
+            '3. Battery saver -> No restrictions',
+            '4. Other permissions -> Display pop-up windows',
+            'Agar ishlamasa, Developer options ichida MIUI optimization sozlamasini tekshiring.',
+          ]
+        : [
+            'Чтобы напоминания приходили вовремя, проверьте настройки:',
+            '1. Зажмите иконку приложения -> App info',
+            '2. Включите Autostart',
+            '3. Battery saver -> No restrictions',
+            '4. Other permissions -> Display pop-up windows',
+            'Если не работает, проверьте MIUI optimization в Developer options.',
+          ];
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange),
-            SizedBox(width: 8),
-            Text("Xiaomi Sozlamalari"),
+            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(l10n.miuiSettings),
           ],
         ),
-        content: const SingleChildScrollView(
+        content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Bildirishnomalar vaqtida chiqishi uchun quyidagilarni bajaring:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 12),
-              Text("1. Ilova belgisini bosib turing -> 'App Info'"),
-              SizedBox(height: 4),
-              Text("2. 'Autostart' (Avtopusk) yoqing"),
-              SizedBox(height: 4),
-              Text("3. 'Battery Saver' -> 'No Restrictions'"),
-              SizedBox(height: 4),
-              Text("4. 'Other Permissions' -> 'Display pop-up windows'"),
-              SizedBox(height: 8),
-              Text(
-                "⚠️ Agar yuqoridagi sozlamalardan keyin ham ishlamasa, 'Developer Options' -> 'Turn off MIUI Optimization' ni yoqib ko'ring.",
-                style: TextStyle(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.w500,
+            children: helpLines.asMap().entries.map((entry) {
+              final isFirst = entry.key == 0;
+              final isLast = entry.key == helpLines.length - 1;
+              return Padding(
+                padding: EdgeInsets.only(bottom: isFirst ? 12 : 6),
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isLast ? Colors.orange : null,
+                    fontWeight: isFirst || isLast
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                  ),
                 ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
         actions: [
@@ -538,11 +542,11 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text("Sozlamalarni ochish"),
+            child: Text(l10n.openSettings),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Tushunarli"),
+            child: Text(l10n.understood),
           ),
         ],
       ),

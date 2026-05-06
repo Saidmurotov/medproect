@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../core/constants/colors.dart';
 
 class AppTheme {
@@ -16,7 +15,7 @@ class AppTheme {
         surface: AppColors.background,
         error: AppColors.danger,
       ),
-      textTheme: GoogleFonts.interTextTheme(),
+      textTheme: Typography.material2021().black,
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -72,10 +71,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -129,12 +125,12 @@ class AppTheme {
         onPrimary: Colors.white,
         surface: darkSurface,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      textTheme: Typography.material2021().white,
       appBarTheme: AppBarTheme(
         backgroundColor: darkSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: Colors.white,
@@ -182,10 +178,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -193,11 +186,11 @@ class AppTheme {
         selectedItemColor: AppColors.primaryLight,
         unselectedItemColor: Colors.white.withValues(alpha: 0.5),
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.inter(
+        selectedLabelStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
       ),
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.primaryLight,

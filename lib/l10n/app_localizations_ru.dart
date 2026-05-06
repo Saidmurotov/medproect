@@ -449,4 +449,84 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get foodCamera => 'Калории';
+
+  @override
+  String get diagnosis => 'Диагноз';
+
+  @override
+  String get diseaseType => 'Тип заболевания';
+
+  @override
+  String get dietTable => 'Диетический стол';
+
+  @override
+  String get myDiet => 'Моя диета';
+
+  @override
+  String get todaysCalories => 'Калории за сегодня';
+
+  @override
+  String caloriesNeeded(Object count) {
+    return 'Нужно еще $count ккал';
+  }
+
+  @override
+  String get targetReached => 'Норма выполнена!';
+
+  @override
+  String get pending => 'Ожидается';
+
+  @override
+  String get completed => 'Выполнено';
+
+  @override
+  String get allDoneTitle => 'Отлично!';
+
+  @override
+  String get allDoneSubtitle => 'Все лекарства на сегодня приняты';
+
+  @override
+  String get miuiSettings => 'Настройки Xiaomi';
+
+  @override
+  String get openSettings => 'Открыть настройки';
+
+  @override
+  String get understood => 'Понятно';
+
+  @override
+  String get notFood => 'Еда не обнаружена';
+
+  @override
+  String get tryAgain => 'Повторить';
+
+  @override
+  String get foodScanner => 'Сканер еды';
+
+  @override
+  String get takeFoodPhoto => 'Сфотографируйте еду';
+
+  @override
+  String get analysisResult => 'Результат анализа';
+
+  @override
+  String get unknownFood => 'Неизвестная еда';
+
+  @override
+  String get forbidden => 'Запрещено';
+
+  @override
+  String get protein => 'Белки';
+
+  @override
+  String get fat => 'Жиры';
+
+  @override
+  String get carbs => 'Углеводы';
+
+  @override
+  String get saving => 'Сохранение...';
+
+  @override
+  String get retake => 'Переснять';
 }

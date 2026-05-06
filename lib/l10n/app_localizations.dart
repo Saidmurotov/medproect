@@ -943,6 +943,162 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Kaloriya'**
   String get foodCamera;
+
+  /// No description provided for @diagnosis.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tashxis'**
+  String get diagnosis;
+
+  /// No description provided for @diseaseType.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kasallik turi'**
+  String get diseaseType;
+
+  /// No description provided for @dietTable.
+  ///
+  /// In uz, this message translates to:
+  /// **'Parhez stoli'**
+  String get dietTable;
+
+  /// No description provided for @myDiet.
+  ///
+  /// In uz, this message translates to:
+  /// **'Mening parhezim'**
+  String get myDiet;
+
+  /// No description provided for @todaysCalories.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bugungi kaloriya'**
+  String get todaysCalories;
+
+  /// No description provided for @caloriesNeeded.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yana {count} kkal kerak'**
+  String caloriesNeeded(Object count);
+
+  /// No description provided for @targetReached.
+  ///
+  /// In uz, this message translates to:
+  /// **'Norma bajarildi!'**
+  String get targetReached;
+
+  /// No description provided for @pending.
+  ///
+  /// In uz, this message translates to:
+  /// **'Kutilmoqda'**
+  String get pending;
+
+  /// No description provided for @completed.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bajarilgan'**
+  String get completed;
+
+  /// No description provided for @allDoneTitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Barakalla!'**
+  String get allDoneTitle;
+
+  /// No description provided for @allDoneSubtitle.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bugungi barcha dorilarni qabul qildingiz'**
+  String get allDoneSubtitle;
+
+  /// No description provided for @miuiSettings.
+  ///
+  /// In uz, this message translates to:
+  /// **'Xiaomi sozlamalari'**
+  String get miuiSettings;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sozlamalarni ochish'**
+  String get openSettings;
+
+  /// No description provided for @understood.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tushunarli'**
+  String get understood;
+
+  /// No description provided for @notFood.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ovqat aniqlanmadi'**
+  String get notFood;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qayta urinish'**
+  String get tryAgain;
+
+  /// No description provided for @foodScanner.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ovqat skaneri'**
+  String get foodScanner;
+
+  /// No description provided for @takeFoodPhoto.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ovqatingizni rasmga oling'**
+  String get takeFoodPhoto;
+
+  /// No description provided for @analysisResult.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tahlil natijasi'**
+  String get analysisResult;
+
+  /// No description provided for @unknownFood.
+  ///
+  /// In uz, this message translates to:
+  /// **'Noma\'lum ovqat'**
+  String get unknownFood;
+
+  /// No description provided for @forbidden.
+  ///
+  /// In uz, this message translates to:
+  /// **'Taqiqlangan'**
+  String get forbidden;
+
+  /// No description provided for @protein.
+  ///
+  /// In uz, this message translates to:
+  /// **'Oqsil'**
+  String get protein;
+
+  /// No description provided for @fat.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yog\''**
+  String get fat;
+
+  /// No description provided for @carbs.
+  ///
+  /// In uz, this message translates to:
+  /// **'Uglevod'**
+  String get carbs;
+
+  /// No description provided for @saving.
+  ///
+  /// In uz, this message translates to:
+  /// **'Saqlanmoqda...'**
+  String get saving;
+
+  /// No description provided for @retake.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qayta olish'**
+  String get retake;
 }
 
 class _AppLocalizationsDelegate

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -56,12 +55,19 @@ class PdfService {
           children: [
             pw.Text(
               'TIBBIY HISOBOT',
-              style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.blue),
+              style: pw.TextStyle(
+                fontSize: 24,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue,
+              ),
             ),
             pw.Text(DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())),
           ],
         ),
-        pw.Text('MedProect', style: pw.TextStyle(fontSize: 18, color: PdfColors.blueGrey)),
+        pw.Text(
+          'MedProect',
+          style: pw.TextStyle(fontSize: 18, color: PdfColors.blueGrey),
+        ),
       ],
     );
   }
@@ -70,12 +76,36 @@ class PdfService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text('Foydalanuvchi ma\'lumotlari', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+          'Foydalanuvchi ma\'lumotlari',
+          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        ),
         pw.SizedBox(height: 8),
-        pw.Row(children: [pw.Text('Ism: '), pw.Text('${user.firstName} ${user.lastName}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))]),
+        pw.Row(
+          children: [
+            pw.Text('Ism: '),
+            pw.Text(
+              '${user.firstName} ${user.lastName}',
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ],
+        ),
         pw.Row(children: [pw.Text('Yosh: '), pw.Text('${user.age}')]),
-        pw.Row(children: [pw.Text('Tashxis: '), pw.Text(user.diagnosis, style: pw.TextStyle(color: PdfColors.red, fontWeight: pw.FontWeight.bold))]),
-        pw.Row(children: [pw.Text('BMI: '), pw.Text(user.bmi.toStringAsFixed(1))]),
+        pw.Row(
+          children: [
+            pw.Text('Tashxis: '),
+            pw.Text(
+              user.diagnosis,
+              style: pw.TextStyle(
+                color: PdfColors.red,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        pw.Row(
+          children: [pw.Text('BMI: '), pw.Text(user.bmi.toStringAsFixed(1))],
+        ),
       ],
     );
   }
@@ -84,16 +114,23 @@ class PdfService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text('Qabul qilinayotgan dorilar', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+          'Qabul qilinayotgan dorilar',
+          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        ),
         pw.SizedBox(height: 8),
         pw.TableHelper.fromTextArray(
           headers: ['Nomi', 'Dozasi', 'Vaqti', 'Holati'],
-          data: medications.map((m) => [
-            m.name,
-            m.dose ?? '-',
-            m.times.join(', '),
-            m.reminderEnabled ? 'Yoqilgan' : 'O\'chirilgan'
-          ]).toList(),
+          data: medications
+              .map(
+                (m) => [
+                  m.name,
+                  m.dose ?? '-',
+                  m.times.join(', '),
+                  m.reminderEnabled ? 'Yoqilgan' : 'O\'chirilgan',
+                ],
+              )
+              .toList(),
           headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
         ),
@@ -105,18 +142,25 @@ class PdfService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text('Semptomlar tarixi (Oxirgi 30 kun)', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+          'Semptomlar tarixi (Oxirgi 30 kun)',
+          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        ),
         pw.SizedBox(height: 8),
         if (symptoms.isEmpty)
           pw.Text('Ma\'lumotlar mavjud emas.')
         else
           pw.TableHelper.fromTextArray(
             headers: ['Sana', 'Semptomlar', 'Og\'riq darajasi'],
-            data: symptoms.map((s) => [
-              DateFormat('dd.MM.yyyy').format(s.date),
-              s.symptoms.join(', '),
-              '${s.painLevel}/10'
-            ]).toList(),
+            data: symptoms
+                .map(
+                  (s) => [
+                    DateFormat('dd.MM.yyyy').format(s.date),
+                    s.symptoms.join(', '),
+                    '${s.painLevel}/10',
+                  ],
+                )
+                .toList(),
             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
             headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
           ),

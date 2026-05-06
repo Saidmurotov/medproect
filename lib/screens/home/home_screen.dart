@@ -16,6 +16,7 @@ import '../../widgets/language_toggle.dart';
 import '../../services/firestore_service.dart';
 import '../../widgets/symptom_advice_card.dart';
 import '../../models/symptom_model.dart';
+import '../../core/constants/diet_tables.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,6 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
+    final diagnosis = user == null
+        ? ''
+        : DietConstants.normalizeDiseaseName(user.diagnosis);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -158,20 +162,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${l10n.welcome}${user != null ? ", ${user.firstName}" : ""} 👋',
+                          '${l10n.welcome}${user != null ? ", ${user.firstName}" : ""}',
                           style: AppTextStyles.h3,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         if (user != null)
                           Text(
-                            'Sizning tashxisingiz: ${user.diagnosis}',
+                            '${l10n.diagnosis}: $diagnosis',
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           )
                         else
-                          Text(l10n.trackHealth, style: AppTextStyles.bodySmall),
+                          Text(
+                            l10n.trackHealth,
+                            style: AppTextStyles.bodySmall,
+                          ),
                       ],
                     ),
                   ),
@@ -243,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Bugungi Kaloriya',
+                                    l10n.todaysCalories,
                                     style: AppTextStyles.labelBold,
                                   ),
                                   const SizedBox(height: 4),
@@ -302,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 progress >= 1.0
-                                    ? 'Norma bajarildi! 🎉'
-                                    : 'Yana ${target - current} kkal kerak',
+                                    ? l10n.targetReached
+                                    : l10n.caloriesNeeded(target - current),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: progress >= 1.0
@@ -383,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.restaurant_rounded,
                       iconColor: AppColors.success,
                       bgColor: AppColors.successLight,
-                      label: 'Mening parhezim',
+                      label: l10n.myDiet,
                       onTap: () => Navigator.pushNamed(context, '/diet'),
                     ),
                   ),

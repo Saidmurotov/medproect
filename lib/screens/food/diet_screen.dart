@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
 import '../../core/constants/diet_tables.dart';
 import '../../providers/user_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class DietScreen extends StatelessWidget {
   const DietScreen({super.key});
@@ -11,6 +12,7 @@ class DietScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final isUz = locale == 'uz';
 
@@ -18,8 +20,10 @@ class DietScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final tableId = DietConstants.diseaseToTable[user.diagnosis] ?? '№15';
-    final diet = DietConstants.dietTables[tableId] ?? DietConstants.dietTables['№15']!;
+    final diagnosis = DietConstants.normalizeDiseaseName(user.diagnosis);
+    final tableId = DietConstants.getTableId(user.diagnosis);
+    final diet =
+        DietConstants.dietTables[tableId] ?? DietConstants.dietTables['№15']!;
 
     final allowed = isUz ? diet.allowedUz : diet.allowedRu;
     final forbidden = isUz ? diet.forbiddenUz : diet.forbiddenRu;
@@ -28,7 +32,7 @@ class DietScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(isUz ? 'Mening parhezim' : 'Моя диета', style: AppTextStyles.h3),
+        title: Text(l10n.myDiet, style: AppTextStyles.h3),
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -51,12 +55,12 @@ class DietScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isUz ? 'Tashxis:' : 'Диагноз:',
+                    '${l10n.diagnosis}:',
                     style: const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    user.diagnosis,
+                    diagnosis,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -66,12 +70,19 @@ class DietScreen extends StatelessWidget {
                   const Divider(color: Colors.white24, height: 24),
                   Row(
                     children: [
-                      const Icon(Icons.info_outline, color: Colors.white, size: 20),
+                      const Icon(
+                        Icons.info_outline,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${isUz ? 'Parhez stoli:' : 'Диетический стол:'} $tableId',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          '${l10n.dietTable}: $tableId',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -104,9 +115,9 @@ class DietScreen extends StatelessWidget {
               color: AppColors.danger,
               bgColor: AppColors.dangerLight,
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             // Note
             Container(
               padding: const EdgeInsets.all(16),
@@ -121,10 +132,14 @@ class DietScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      isUz 
-                        ? 'Eslatma: Har doim shifokoringiz bilan maslahatlashing.'
-                        : 'Примечание: Всегда консультируйтесь с лечащим врачом.',
-                      style: const TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.w500),
+                      isUz
+                          ? 'Eslatma: har doim shifokoringiz bilan maslahatlashing.'
+                          : 'Примечание: всегда консультируйтесь с лечащим врачом.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -147,24 +162,39 @@ class DietScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: items.map((item) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: color.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              item,
-              style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w500),
-            ),
-          )).toList(),
+          children: items
+              .map(
+                (item) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: color.withValues(alpha: 0.2)),
+                  ),
+                  child: Text(
+                    item,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ],
     );

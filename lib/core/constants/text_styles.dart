@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'colors.dart';
 
 class AppTextStyles {
   // Headings
-  static final TextStyle h1 = GoogleFonts.inter(
+  static const TextStyle h1 = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     height: 1.3,
   );
 
-  static final TextStyle h2 = GoogleFonts.inter(
+  static const TextStyle h2 = TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
     height: 1.35,
   );
 
-  static final TextStyle h3 = GoogleFonts.inter(
+  static const TextStyle h3 = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -26,21 +25,21 @@ class AppTextStyles {
   );
 
   // Body
-  static final TextStyle bodyLarge = GoogleFonts.inter(
+  static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
     height: 1.5,
   );
 
-  static final TextStyle bodyMedium = GoogleFonts.inter(
+  static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
     height: 1.5,
   );
 
-  static final TextStyle bodySmall = GoogleFonts.inter(
+  static const TextStyle bodySmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textTertiary,
@@ -48,14 +47,14 @@ class AppTextStyles {
   );
 
   // Labels
-  static final TextStyle label = GoogleFonts.inter(
+  static const TextStyle label = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
     letterSpacing: 0.3,
   );
 
-  static final TextStyle labelBold = GoogleFonts.inter(
+  static const TextStyle labelBold = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -63,14 +62,14 @@ class AppTextStyles {
   );
 
   // Numbers / Stats
-  static final TextStyle statLarge = GoogleFonts.inter(
+  static const TextStyle statLarge = TextStyle(
     fontSize: 36,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     height: 1.2,
   );
 
-  static final TextStyle statMedium = GoogleFonts.inter(
+  static const TextStyle statMedium = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -78,7 +77,7 @@ class AppTextStyles {
   );
 
   // Button
-  static final TextStyle button = GoogleFonts.inter(
+  static const TextStyle button = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textOnPrimary,

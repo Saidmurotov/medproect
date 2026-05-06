@@ -9,26 +9,6 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
-analyzer:
-  exclude:
-    - lib/config/**
-    - lib/l10n/**
-    - lib/models/**
-    - lib/providers/**
-    - lib/screens/**
-    - lib/services/**
-    - lib/core/navigation.dart
-    - lib/core/constants.dart
-    - lib/core/secrets.dart.example
-    - lib/core/utils/bmi_calculator.dart
-    - lib/core/constants/colors.dart
-    - lib/core/constants/text_styles.dart
-    - lib/widgets/app_bottom_nav.dart
-    - lib/widgets/bmi_card.dart
-    - lib/widgets/form_hints.dart
-    - lib/widgets/language_toggle.dart
-    - lib/widgets/symptom_advice_card.dart
-
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

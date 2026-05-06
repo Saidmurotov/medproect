@@ -403,7 +403,7 @@ class _PdfExportButtonState extends State<_PdfExportButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: _isExporting ? null : _exportPdf,
@@ -431,8 +431,10 @@ class _PdfExportButtonState extends State<_PdfExportButton> {
     setState(() => _isExporting = true);
     try {
       final user = Provider.of<UserProvider>(context, listen: false).user!;
-      final meds =
-          Provider.of<MedicationProvider>(context, listen: false).medications;
+      final meds = Provider.of<MedicationProvider>(
+        context,
+        listen: false,
+      ).medications;
 
       await PdfService().generateAndPrintReport(
         user: user,
@@ -442,7 +444,10 @@ class _PdfExportButtonState extends State<_PdfExportButton> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Xato: $e'), backgroundColor: AppColors.danger),
+          SnackBar(
+            content: Text('Xato: $e'),
+            backgroundColor: AppColors.danger,
+          ),
         );
       }
     } finally {

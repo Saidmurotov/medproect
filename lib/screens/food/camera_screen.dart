@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/constants/colors.dart';
 import '../../services/food_ai_service.dart';
 import '../../models/food_result_model.dart';
+import '../../l10n/app_localizations.dart';
 import 'result_screen.dart';
 
 /// Foydalanuvchi ovqatni rasmga oladigan ekran.
@@ -63,7 +64,10 @@ class _CameraScreenState extends State<CameraScreen> {
         _isAnalyzing = false;
         _statusText = '';
       });
-      _showErrorDialog('Xato yuz berdi', e.toString());
+      _showErrorDialog(
+        AppLocalizations.of(context)!.errorUnknown,
+        e.toString(),
+      );
     }
   }
 
@@ -81,11 +85,11 @@ class _CameraScreenState extends State<CameraScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.no_food_outlined, color: AppColors.warning),
-            SizedBox(width: 8),
-            Text('Ovqat aniqlanmadi'),
+            const Icon(Icons.no_food_outlined, color: AppColors.warning),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context)!.notFood),
           ],
         ),
         content: Text(message),
@@ -95,14 +99,14 @@ class _CameraScreenState extends State<CameraScreen> {
               Navigator.pop(ctx);
               _openCamera();
             },
-            child: const Text('Qayta urinish'),
+            child: Text(AppLocalizations.of(context)!.tryAgain),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
             ),
-            child: const Text('Bekor qilish'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),
@@ -125,7 +129,7 @@ class _CameraScreenState extends State<CameraScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context)!.understood),
           ),
         ],
       ),
@@ -137,9 +141,12 @@ class _CameraScreenState extends State<CameraScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Ovqat Skaneri',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        title: Text(
+          AppLocalizations.of(context)!.foodScanner,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
@@ -217,8 +224,8 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
-              'Ovqatingizni rasmga oling',
+            Text(
+              AppLocalizations.of(context)!.takeFoodPhoto,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,

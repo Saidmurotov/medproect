@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -22,8 +23,17 @@ class NotificationService {
   static const String _channelName = 'Dori eslatmalari';
   static const String _channelDesc = 'Muhim dori eslatmalari';
 
+  bool get _isSupportedPlatform =>
+      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+
   Future<void> init() async {
     if (_isInitialized) return;
+
+    if (!_isSupportedPlatform) {
+      _isInitialized = true;
+      debugPrint('NotificationService skipped on unsupported platform.');
+      return;
+    }
 
     tz.initializeTimeZones();
     final String timezoneName = await FlutterTimezone.getLocalTimezone();
@@ -57,6 +67,8 @@ class NotificationService {
   }
 
   Future<void> _createNotificationChannel() async {
+    if (!_isSupportedPlatform) return;
+
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       _channelId,
       _channelName,
@@ -78,6 +90,8 @@ class NotificationService {
   }
 
   Future<bool> requestPermissionsIfNeeded() async {
+    if (!_isSupportedPlatform) return false;
+
     if (Platform.isAndroid) {
       final notifStatus = await Permission.notification.request();
       debugPrint('📋 Notification permission: $notifStatus');
@@ -120,6 +134,7 @@ class NotificationService {
     required TimeOfDay time,
   }) async {
     await _ensureInitialized();
+    if (!_isSupportedPlatform) return;
 
     final scheduledTime = _nextInstanceOfTime(time);
 
@@ -147,6 +162,7 @@ class NotificationService {
     required List<int> daysOfWeek,
   }) async {
     await _ensureInitialized();
+    if (!_isSupportedPlatform) return;
 
     for (final day in daysOfWeek) {
       final id = baseId * 10 + day;
@@ -171,6 +187,7 @@ class NotificationService {
 
   Future<void> showImmediateTestNotification() async {
     await _ensureInitialized();
+    if (!_isSupportedPlatform) return;
 
     await _notificationsPlugin.show(
       9999,
@@ -185,6 +202,7 @@ class NotificationService {
 
   Future<void> showScheduledTestNotification() async {
     await _ensureInitialized();
+    if (!_isSupportedPlatform) return;
 
     final scheduledTime = tz.TZDateTime.now(
       tz.local,
@@ -208,20 +226,31 @@ class NotificationService {
   }
 
   Future<void> cancelMedicationReminder(int id) async {
+    if (!_isSupportedPlatform) return;
+
     await _notificationsPlugin.cancel(id);
     debugPrint('🗑️  Cancelled notification: $id');
   }
 
   Future<void> cancelAllReminders() async {
+    if (!_isSupportedPlatform) return;
+
     await _notificationsPlugin.cancelAll();
     debugPrint('🗑️  All notifications cancelled');
   }
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    if (!_isSupportedPlatform) return [];
+
     return await _notificationsPlugin.pendingNotificationRequests();
   }
 
   Future<void> debugPermissionStates() async {
+    if (!_isSupportedPlatform) {
+      debugPrint('Notification debug skipped on unsupported platform.');
+      return;
+    }
+
     final notifStatus = await Permission.notification.status;
     debugPrint('=== NOTIFICATION DEBUG ===');
     debugPrint('📋 Notification permission: $notifStatus');

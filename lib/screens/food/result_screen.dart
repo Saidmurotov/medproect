@@ -8,6 +8,7 @@ import '../../core/constants/text_styles.dart';
 import '../../core/constants/diet_tables.dart';
 import '../../providers/user_provider.dart';
 import '../../models/food_result_model.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Ovqat tahlili natijasini ko'rsatib, Firestore ga saqlash imkonini beruvchi ekran.
 class ResultScreen extends StatefulWidget {
@@ -32,11 +33,11 @@ class _ResultScreenState extends State<ResultScreen> {
       if (uid == null) throw Exception('Foydalanuvchi tizimga kirmagan');
 
       final data = widget.result.toFirestore(uid);
-      
+
       // Check if forbidden
       final user = Provider.of<UserProvider>(context, listen: false).user;
       if (user != null) {
-        final tableId = DietConstants.diseaseToTable[user.diagnosis] ?? '№15';
+        final tableId = DietConstants.getTableId(user.diagnosis);
         final diet = DietConstants.dietTables[tableId];
         if (diet != null) {
           final isForbidden = _isFoodForbidden(widget.result.foodName, diet);
@@ -44,9 +45,7 @@ class _ResultScreenState extends State<ResultScreen> {
         }
       }
 
-      await FirebaseFirestore.instance
-          .collection('foodLogs')
-          .add(data);
+      await FirebaseFirestore.instance.collection('foodLogs').add(data);
 
       if (!mounted) return;
 
@@ -70,8 +69,8 @@ class _ResultScreenState extends State<ResultScreen> {
 
       Navigator.pop(context, widget.result);
     } catch (e) {
-      setState(() => _isSaving = false);
       if (!mounted) return;
+      setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Xato: $e'),
@@ -101,11 +100,12 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _buildFoodHeader(BuildContext context, FoodResultModel r) {
     final user = Provider.of<UserProvider>(context).user;
+    final l10n = AppLocalizations.of(context)!;
     bool isForbidden = false;
     String? tableId;
 
     if (user != null) {
-      tableId = DietConstants.diseaseToTable[user.diagnosis] ?? '№15';
+      tableId = DietConstants.getTableId(user.diagnosis);
       final diet = DietConstants.dietTables[tableId];
       if (diet != null) {
         isForbidden = _isFoodForbidden(r.foodName, diet);
@@ -118,7 +118,9 @@ class _ResultScreenState extends State<ResultScreen> {
         color: isForbidden ? AppColors.dangerLight : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.cardShadow,
-        border: isForbidden ? Border.all(color: AppColors.danger, width: 1.5) : null,
+        border: isForbidden
+            ? Border.all(color: AppColors.danger, width: 1.5)
+            : null,
       ),
       child: Column(
         children: [
@@ -129,7 +131,7 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            r.foodName ?? 'Nomalum ovqat',
+            r.foodName ?? l10n.unknownFood,
             style: AppTextStyles.h2.copyWith(
               color: isForbidden ? AppColors.danger : AppColors.textPrimary,
             ),
@@ -144,7 +146,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'TAQIQLANGAN! (Stol $tableId)',
+                '${l10n.forbidden.toUpperCase()}! (${l10n.dietTable} $tableId)',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -169,11 +171,12 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final r = widget.result;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Tahlil Natijasi', style: AppTextStyles.h3),
+        title: Text(l10n.analysisResult, style: AppTextStyles.h3),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: AppColors.textPrimary,
@@ -204,7 +207,7 @@ class _ResultScreenState extends State<ResultScreen> {
             Row(
               children: [
                 _MacroCard(
-                  label: 'Kaloriya',
+                  label: l10n.foodCamera,
                   value: '${r.calories}',
                   unit: 'kkal',
                   icon: Icons.local_fire_department_rounded,
@@ -213,7 +216,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
                 const SizedBox(width: 10),
                 _MacroCard(
-                  label: 'Oqsil',
+                  label: l10n.protein,
                   value: r.protein.toStringAsFixed(1),
                   unit: 'g',
                   icon: Icons.fitness_center_rounded,
@@ -226,7 +229,7 @@ class _ResultScreenState extends State<ResultScreen> {
             Row(
               children: [
                 _MacroCard(
-                  label: 'Yog\'',
+                  label: l10n.fat,
                   value: r.fat.toStringAsFixed(1),
                   unit: 'g',
                   icon: Icons.water_drop_rounded,
@@ -235,7 +238,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
                 const SizedBox(width: 10),
                 _MacroCard(
-                  label: 'Uglevod',
+                  label: l10n.carbs,
                   value: r.carbs.toStringAsFixed(1),
                   unit: 'g',
                   icon: Icons.grain_rounded,
@@ -260,7 +263,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     )
                   : const Icon(Icons.save_rounded),
-              label: Text(_isSaving ? 'Saqlanmoqda...' : 'Saqlash'),
+              label: Text(_isSaving ? l10n.saving : l10n.save),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -284,7 +287,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Qayta olish'),
+              child: Text(l10n.retake),
             ),
           ],
         ),

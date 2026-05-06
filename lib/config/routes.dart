@@ -36,7 +36,8 @@ class AppRoutes {
       case medications:
         return MaterialPageRoute(builder: (_) => const MedicationsScreen());
       case addMedication:
-        final med = settings.arguments as Medication?;
+        final args = settings.arguments;
+        final med = args is Medication ? args : null;
         return MaterialPageRoute(
           builder: (_) => AddEditMedicationScreen(medication: med),
         );

@@ -456,4 +456,84 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get foodCamera => 'Kaloriya';
+
+  @override
+  String get diagnosis => 'Tashxis';
+
+  @override
+  String get diseaseType => 'Kasallik turi';
+
+  @override
+  String get dietTable => 'Parhez stoli';
+
+  @override
+  String get myDiet => 'Mening parhezim';
+
+  @override
+  String get todaysCalories => 'Bugungi kaloriya';
+
+  @override
+  String caloriesNeeded(Object count) {
+    return 'Yana $count kkal kerak';
+  }
+
+  @override
+  String get targetReached => 'Norma bajarildi!';
+
+  @override
+  String get pending => 'Kutilmoqda';
+
+  @override
+  String get completed => 'Bajarilgan';
+
+  @override
+  String get allDoneTitle => 'Barakalla!';
+
+  @override
+  String get allDoneSubtitle => 'Bugungi barcha dorilarni qabul qildingiz';
+
+  @override
+  String get miuiSettings => 'Xiaomi sozlamalari';
+
+  @override
+  String get openSettings => 'Sozlamalarni ochish';
+
+  @override
+  String get understood => 'Tushunarli';
+
+  @override
+  String get notFood => 'Ovqat aniqlanmadi';
+
+  @override
+  String get tryAgain => 'Qayta urinish';
+
+  @override
+  String get foodScanner => 'Ovqat skaneri';
+
+  @override
+  String get takeFoodPhoto => 'Ovqatingizni rasmga oling';
+
+  @override
+  String get analysisResult => 'Tahlil natijasi';
+
+  @override
+  String get unknownFood => 'Noma\'lum ovqat';
+
+  @override
+  String get forbidden => 'Taqiqlangan';
+
+  @override
+  String get protein => 'Oqsil';
+
+  @override
+  String get fat => 'Yog\'';
+
+  @override
+  String get carbs => 'Uglevod';
+
+  @override
+  String get saving => 'Saqlanmoqda...';
+
+  @override
+  String get retake => 'Qayta olish';
 }

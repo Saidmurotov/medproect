@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/medication_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../core/constants/diet_tables.dart';
+import '../../core/utils/validators.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -29,7 +30,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _heightController = TextEditingController();
   final _weightController = TextEditingController();
   String _gender = 'male';
-  String _diagnosis = 'Сурункали гастрит'; // Default selection
+  String _diagnosis = 'Surunkali gastrit';
   bool _isLoading = false;
   String _emailValue = '';
   String _passwordValue = '';
@@ -73,7 +74,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
           children: [
             // --- Card 1: Personal Info ---
-            _SectionTitle(title: '👤  ${l10n.personalInfo}'),
+            _SectionTitle(title: l10n.personalInfo),
             const SizedBox(height: 8),
             AppCard(
               child: Column(
@@ -82,12 +83,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     label: l10n.firstName,
                     controller: _firstNameController,
                     prefixIcon: Icons.person_outline,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) =>
+                        Validators.requiredText(value, l10n.firstName),
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     label: l10n.lastName,
                     controller: _lastNameController,
                     prefixIcon: Icons.person_outline,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) =>
+                        Validators.requiredText(value, l10n.lastName),
                   ),
                   const SizedBox(height: 16),
                   // Gender selector
@@ -126,7 +133,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             const SizedBox(height: 24),
 
             // --- Card 2: Body Info ---
-            _SectionTitle(title: '📊  ${l10n.bodyIndicators}'),
+            _SectionTitle(title: l10n.bodyIndicators),
             const SizedBox(height: 8),
             AppCard(
               child: Column(
@@ -136,6 +143,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     controller: _ageController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icons.cake_outlined,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) =>
+                        Validators.positiveInt(value, l10n.age),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -146,6 +156,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           controller: _heightController,
                           keyboardType: TextInputType.number,
                           prefixIcon: Icons.height_rounded,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) =>
+                              Validators.positiveDouble(value, l10n.height),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -155,6 +168,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           controller: _weightController,
                           keyboardType: TextInputType.number,
                           prefixIcon: Icons.monitor_weight_outlined,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) =>
+                              Validators.positiveDouble(value, l10n.weight),
                         ),
                       ),
                     ],
@@ -166,15 +182,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             const SizedBox(height: 24),
 
             // --- Card 2.5: Diagnosis ---
-            _SectionTitle(title: '🏥  Tashxis'),
+            _SectionTitle(title: l10n.diagnosis),
             const SizedBox(height: 8),
             AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kasallik turi',
-                    style: TextStyle(
+                  Text(
+                    l10n.diseaseType,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
@@ -196,8 +212,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Icons.keyboard_arrow_down_rounded,
                           color: AppColors.primary,
                         ),
-                        items: DietConstants.diseaseToTable.keys
-                            .map((String disease) {
+                        items: DietConstants.diseaseOptions.map((
+                          String disease,
+                        ) {
                           return DropdownMenuItem<String>(
                             value: disease,
                             child: Text(
@@ -219,7 +236,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Parhez: ${DietConstants.diseaseToTable[_diagnosis]}',
+                    '${l10n.dietTable}: ${DietConstants.getTableId(_diagnosis)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.primary,
@@ -233,7 +250,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             const SizedBox(height: 24),
 
             // --- Card 3: Account ---
-            _SectionTitle(title: '🔐  ${l10n.accountInfo}'),
+            _SectionTitle(title: l10n.accountInfo),
             const SizedBox(height: 8),
             AppCard(
               child: Column(
@@ -244,6 +261,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
+                    textInputAction: TextInputAction.next,
+                    validator: Validators.email,
                     onChanged: (value) => setState(() => _emailValue = value),
                     bottomWidget: EmailValidationHint(email: _emailValue),
                   ),
@@ -256,6 +275,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     controller: _passwordController,
                     isPassword: true,
                     prefixIcon: Icons.lock_outline,
+                    textInputAction: TextInputAction.done,
+                    validator: Validators.password,
                     onChanged: (value) =>
                         setState(() => _passwordValue = value),
                     bottomWidget: PasswordStrengthHint(
@@ -306,14 +327,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       setState(() => _isLoading = true);
       try {
         final user = await authProvider.register(
-          email: _emailController.text,
+          email: _emailController.text.trim(),
           password: _passwordController.text,
-          firstName: _firstNameController.text,
-          lastName: _lastNameController.text,
-          age: int.tryParse(_ageController.text) ?? 0,
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          age: int.tryParse(_ageController.text.trim()) ?? 0,
           gender: _gender,
-          height: double.tryParse(_heightController.text) ?? 0,
-          weight: double.tryParse(_weightController.text) ?? 0,
+          height:
+              double.tryParse(
+                _heightController.text.trim().replaceAll(',', '.'),
+              ) ??
+              0,
+          weight:
+              double.tryParse(
+                _weightController.text.trim().replaceAll(',', '.'),
+              ) ??
+              0,
           diagnosis: _diagnosis,
         );
 

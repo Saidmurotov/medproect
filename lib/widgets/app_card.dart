@@ -5,11 +5,13 @@ import '../core/constants/app_colors.dart';
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final Color? color;
 
   const AppCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(18),
+    this.color,
   });
 
   @override
@@ -18,7 +20,7 @@ class AppCard extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: AppColors.cardWhite,
+        color: color ?? AppColors.cardWhite,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
         boxShadow: AppColors.cardShadow,

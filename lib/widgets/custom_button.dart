@@ -9,6 +9,7 @@ class CustomButton extends StatefulWidget {
   final bool expanded;
   final bool tonal;
   final bool danger;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
@@ -18,6 +19,7 @@ class CustomButton extends StatefulWidget {
     this.expanded = true,
     this.tonal = false,
     this.danger = false,
+    this.isLoading = false,
   });
 
   @override
@@ -29,24 +31,24 @@ class _CustomButtonState extends State<CustomButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = widget.onPressed == null;
+    final isDisabled = widget.onPressed == null || widget.isLoading;
     final foreground = widget.danger
         ? AppColors.danger
         : widget.tonal
-            ? AppColors.primary
-            : AppColors.textOnPrimary;
+        ? AppColors.primary
+        : AppColors.textOnPrimary;
 
     final background = widget.danger
         ? AppColors.danger.withValues(alpha: 0.12)
         : widget.tonal
-            ? AppColors.primary.withValues(alpha: 0.1)
-            : AppColors.primary;
+        ? AppColors.primary.withValues(alpha: 0.1)
+        : AppColors.primary;
 
     final child = AnimatedScale(
       scale: _pressed && !isDisabled ? 0.98 : 1,
       duration: const Duration(milliseconds: 110),
       child: FilledButton.icon(
-        onPressed: widget.onPressed,
+        onPressed: isDisabled ? null : widget.onPressed,
         style: FilledButton.styleFrom(
           minimumSize: const Size(0, 52),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -60,10 +62,19 @@ class _CustomButtonState extends State<CustomButton> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        icon: Icon(
-          widget.icon ?? Icons.circle,
-          size: widget.icon == null ? 0 : 20,
-        ),
+        icon: widget.isLoading
+            ? SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(foreground),
+                ),
+              )
+            : Icon(
+                widget.icon ?? Icons.circle,
+                size: widget.icon == null ? 0 : 20,
+              ),
         label: Text(
           widget.text,
           maxLines: 1,
